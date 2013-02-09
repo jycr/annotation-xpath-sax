@@ -86,8 +86,8 @@ public class AnnotationProcessor extends AbstractProcessor {
 		// compile the XPath expressions for each class and write
 		// out the _AXSData for it
 		for (AnnotatedClass ac : mClasses.values()) {
-			CompiledAXSData axsData = new CompiledAXSData(ac);
-			axsData.compile(messager);
+			CompiledAXSData axsData = new CompiledAXSData(ac, messager);
+			axsData.compile();
 			
 			String filename = ac.className() + "_AXSData";
 			try {

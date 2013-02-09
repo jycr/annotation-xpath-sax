@@ -13,12 +13,17 @@ public interface ParserTreeConstants
   public int JJTPREDICATE = 7;
   public int JJTOREXPRESSION = 8;
   public int JJTANDEXPRESSION = 9;
-  public int JJTCOMPARISONEXPRESSION = 10;
-  public int JJTINTEGER = 11;
-  public int JJTSTRING = 12;
-  public int JJTATTRIBUTEEXPRESSION = 13;
-  public int JJTFUNCTIONEXPRESSION = 14;
-  public int JJTNAME = 15;
+  public int JJTNOTEXPRESSION = 10;
+  public int JJTNUMERICCOMPARISONEXPRESSION = 11;
+  public int JJTSTRINGCOMPARISONEXPRESSION = 12;
+  public int JJTSTRINGSEARCHFUNCTION = 13;
+  public int JJTINTEGERVALUE = 14;
+  public int JJTSTRINGVALUE = 15;
+  public int JJTATTRIBUTEEXPRESSION = 16;
+  public int JJTCAPTUREATTRSFUNCTION = 17;
+  public int JJTPOSITIONFUNCTION = 18;
+  public int JJTFUNCTIONEXPRESSION = 19;
+  public int JJTNAMEVALUE = 20;
 
 
   public String[] jjtNodeName = {
@@ -32,12 +37,17 @@ public interface ParserTreeConstants
     "Predicate",
     "OrExpression",
     "AndExpression",
-    "ComparisonExpression",
-    "Integer",
-    "String",
+    "NotExpression",
+    "NumericComparisonExpression",
+    "StringComparisonExpression",
+    "StringSearchFunction",
+    "IntegerValue",
+    "StringValue",
     "AttributeExpression",
+    "CaptureAttrsFunction",
+    "PositionFunction",
     "FunctionExpression",
-    "Name",
+    "NameValue",
   };
 }
-/* JavaCC - OriginalChecksum=1874abf15e74310e5ac982f5d8be1ed4 (do not edit this line) */
+/* JavaCC - OriginalChecksum=9b4801bf5a0bd14256bfa664cd1a6dea (do not edit this line) */

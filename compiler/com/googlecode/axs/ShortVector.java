@@ -7,7 +7,7 @@ import java.util.Arrays;
  * @author Ben
  *
  */
-class ShortVector {
+public class ShortVector {
 	private short[] buffer;
 	private int length = 0;
 	
