@@ -238,7 +238,7 @@ class AXSDataWriter {
 		"(zero)",
 		"INSTR_ROOT",
 		"INSTR_ELEMENT",
-		"(unused: 3)",
+		"INSTR_CONTAINS",
 		"INSTR_ATTRIBUTE",
 		"INSTR_LITERAL",
 		"INSTR_EQ_STR",
@@ -248,15 +248,16 @@ class AXSDataWriter {
 		"INSTR_OR",
 		"INSTR_TEST_PREDICATE",
 		"INSTR_WILDCARD_ELEMENT",
-		"(unused: 13)",
-		"INSTR_DOUBLE_SLASH",
+		"INSTR_STARTS_WITH",
+		"INSTR_NONCONSECUTIVE_ELEMENT",
 		"INSTR_POSITION",
 		"INSTR_LT",
 		"INSTR_GT",
 		"INSTR_EQ",
 		"INSTR_NE",
 		"INSTR_LE",
-		"INSTR_GE"
+		"INSTR_GE",
+		"INSTR_ENDS_WITH"
 	};
 	
 	private static void writeTokenArray(Writer w, int indentSpaces, ShortVector tokens) throws IOException {

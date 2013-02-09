@@ -247,7 +247,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 					return false;
 				--tagp;
 				break;
-			case XPathExpression.INSTR_DOUBLE_SLASH:
+			case XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT:
 				// consume any number of tags until the QName before the double slash is found
 			{
 				final QName targetTag = qNames[tokens[++ip]];

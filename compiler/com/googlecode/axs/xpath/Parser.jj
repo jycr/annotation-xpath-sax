@@ -41,7 +41,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}{/*@bgen(jjtree) Expression */
   try {
-/*@egen*/  AbsolutePathExpression()| "//" RelativePathExpression()| RelativePathExpression()/*@bgen(jjtree)*/
+/*@egen*/  ( Slash() | SlashSlash() )? StepExpression()  ( ( Slash() | SlashSlash() ) StepExpression() )*/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -61,13 +61,37 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/}void AbsolutePathExpression() :{/*@bgen(jjtree) AbsolutePathExpression */
-  AbsolutePathExpression jjtn000 = new AbsolutePathExpression(JJTABSOLUTEPATHEXPRESSION);
+/*@egen*/}void Slash() :{/*@bgen(jjtree) Slash */
+  Slash jjtn000 = new Slash(JJTSLASH);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/}{/*@bgen(jjtree) AbsolutePathExpression */
+/*@egen*/}{/*@bgen(jjtree) Slash */
   try {
-/*@egen*/  "/" RelativePathExpression()/*@bgen(jjtree)*/
+/*@egen*/  "/"/*@bgen(jjtree)*/
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/}void SlashSlash() :{/*@bgen(jjtree) SlashSlash */
+  SlashSlash jjtn000 = new SlashSlash(JJTSLASHSLASH);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}{/*@bgen(jjtree) SlashSlash */
+  try {
+/*@egen*/  "//"/*@bgen(jjtree)*/
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/}void StepExpression() :{/*@bgen(jjtree) StepExpression */
+  StepExpression jjtn000 = new StepExpression(JJTSTEPEXPRESSION);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}{/*@bgen(jjtree) StepExpression */
+  try {
+/*@egen*/  ForwardAxisStep() ( Predicate() )*/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -87,71 +111,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/}void RelativePathExpression()       :{}{  StepExpression() ( LOOKAHEAD(2) ChildExpression() | DecendentExpression() )*}void ChildExpression() :{/*@bgen(jjtree) ChildExpression */
-  ChildExpression jjtn000 = new ChildExpression(JJTCHILDEXPRESSION);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}{/*@bgen(jjtree) ChildExpression */
-  try {
-/*@egen*/  "/" StepExpression()/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/}void DecendentExpression() :{/*@bgen(jjtree) DecendentExpression */
-  DecendentExpression jjtn000 = new DecendentExpression(JJTDECENDENTEXPRESSION);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}{/*@bgen(jjtree) DecendentExpression */
-  try {
-/*@egen*/  "//" StepExpression()/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/}void StepExpression()       :{}{  ForwardAxisStep() ( Predicate() )*}void ForwardAxisStep()       :{}{  NameValue()| Wildcard()}void Wildcard() :{/*@bgen(jjtree) Wildcard */
-  Wildcard jjtn000 = new Wildcard(JJTWILDCARD);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}{/*@bgen(jjtree) Wildcard */
-  try {
-/*@egen*/  "*"/*@bgen(jjtree)*/
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/}void Predicate() :{/*@bgen(jjtree) Predicate */
+/*@egen*/}void ForwardAxisStep()       :{}{  NameValue()}void Predicate() :{/*@bgen(jjtree) Predicate */
   Predicate jjtn000 = new Predicate(JJTPREDICATE);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);

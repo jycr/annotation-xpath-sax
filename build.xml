@@ -4,6 +4,8 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
+    
+    <property name="LIBVERSION" value="0.7"/>
 
    	<tstamp/>
  	<property name="build" location="build"/>
@@ -19,8 +21,8 @@
  	<property name="compiler-build" location="${build}/compiler"/>
  	<property name="tests-build" location="${build}/tests"/>
   	
- 	<property name="runtime-jar" location="${dist}/lib/axs-runtime-${DSTAMP}.jar"/>
- 	<property name="compiler-jar" location="${dist}/lib/axs-annotation-compiler-${DSTAMP}.jar"/>
+ 	<property name="runtime-jar" location="${dist}/lib/axs-runtime-${LIBVERSION}.jar"/>
+ 	<property name="compiler-jar" location="${dist}/lib/axs-annotation-compiler-${LIBVERSION}.jar"/>
  	
  	<target name="init">
 	    <!-- Create the build directory structure used by compile -->

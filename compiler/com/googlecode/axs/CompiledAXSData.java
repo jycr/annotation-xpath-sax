@@ -6,14 +6,37 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.Vector;
 
 import javax.annotation.processing.Messager;
 import javax.tools.Diagnostic.Kind;
 import javax.xml.namespace.QName;
 
+import com.googlecode.axs.xpath.AndExpression;
+import com.googlecode.axs.xpath.AttributeExpression;
+import com.googlecode.axs.xpath.CaptureAttrsFunction;
+import com.googlecode.axs.xpath.Expression;
+import com.googlecode.axs.xpath.FunctionExpression;
+import com.googlecode.axs.xpath.IntegerValue;
+import com.googlecode.axs.xpath.NameValue;
 import com.googlecode.axs.xpath.Node;
+import com.googlecode.axs.xpath.NotExpression;
+import com.googlecode.axs.xpath.NumericComparisonExpression;
+import com.googlecode.axs.xpath.OrExpression;
 import com.googlecode.axs.xpath.Parser;
+import com.googlecode.axs.xpath.ParserVisitor;
+import com.googlecode.axs.xpath.PositionFunction;
+import com.googlecode.axs.xpath.Predicate;
+import com.googlecode.axs.xpath.SimpleNode;
+import com.googlecode.axs.xpath.Slash;
+import com.googlecode.axs.xpath.SlashSlash;
+import com.googlecode.axs.xpath.Start;
+import com.googlecode.axs.xpath.StepExpression;
+import com.googlecode.axs.xpath.StringComparisonExpression;
+import com.googlecode.axs.xpath.StringSearchFunction;
+import com.googlecode.axs.xpath.StringValue;
+import com.googlecode.axs.xpath.Wildcard;
 
 /**
  * This class performs the actual compilation of XPath expressions to generate
@@ -21,7 +44,7 @@ import com.googlecode.axs.xpath.Parser;
  * @author Ben
  *
  */
-public class CompiledAXSData {
+public class CompiledAXSData implements ParserVisitor {
 	private AnnotatedClass mClass;
 	private Messager mMessager;
 
@@ -40,13 +63,13 @@ public class CompiledAXSData {
 	private Vector<ShortVector> mTokens = null;
 	private Vector<String> mLiterals = null;
 	private Vector<QName> mQNames = null;
-	private short mCurrentTag = -1, mPriorTag = -1;
 	private HashMap<String, Integer> mLiteralIndices = null;
 	private HashMap<QName, Integer> mQNameIndices = null;
 	private HashMap<String, Vector<Integer>> mTriggerTags = new HashMap<String, Vector<Integer>>();
 	private HashSet<String> mAttributeCaptureTags = new HashSet<String>();
 	private HashSet<String> mPositionCaptureTags = new HashSet<String>();
-
+	private Stack<Boolean> mPositionCaptureStack = new Stack<Boolean>();
+	
 	public class Method {
 		private String mName;
 		private String mXPathExpression;
@@ -108,9 +131,189 @@ public class CompiledAXSData {
 		return mQNames.size() - 1;
 	}
 	
-	private String compileExpression(Node expressionNode, ShortVector instrVector) {
+	@Override
+	public Object visit(SimpleNode node, ShortVector data) {
+		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
+				" node in the parse tree!");
+		return null;
+	}
+
+	@Override
+	public Object visit(Start node, ShortVector data) {
+		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
+				" node in the parse tree!");
+		return null;
+	}
+
+	@Override
+	public Object visit(Slash node, ShortVector data) {
+		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
+				" node in the parse tree!");
+		return null;
+	}
+
+	@Override
+	public Object visit(SlashSlash node, ShortVector data) {
+		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
+				" node in the parse tree!");
+		return null;
+	}
+
+	@Override
+	public Object visit(Wildcard node, ShortVector data) {
+		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
+				" node in the parse tree!");
+		return null;
+	}
+	
+	// Predicate nodes and all the expression types contained under them
+	// return a mask of capture type flags as an Integer; StepExpression
+	// nodes return the union of all the captures their Predicates require
+	
+	private static final int CAPTURE_NONE = 0;
+	private static final int CAPTURE_ATTRIBUTES = 0x0001;
+	private static final int CAPTURE_POSITIONS = 0x0002;
+
+	/**
+	 * Compile all the Predicates required by this node. Does _not_
+	 * compile the axis step itself.
+	 */
+	@Override
+	public Object visit(StepExpression node, ShortVector instrs) {
+		int captures = CAPTURE_NONE;
 		
-		return "";
+		for (int i = 1, children = node.jjtGetNumChildren(); i < children; i++) {
+			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
+		}
+		return captures;
+	}
+	
+	@Override
+	public Object visit(Predicate node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(OrExpression node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(AndExpression node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(NotExpression node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(NumericComparisonExpression node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(StringComparisonExpression node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(StringSearchFunction node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(IntegerValue node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(StringValue node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(AttributeExpression node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(CaptureAttrsFunction node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(PositionFunction node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(FunctionExpression node, ShortVector instrs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(NameValue node, ShortVector instrs) {
+		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
+				" node in the parse tree!");
+		return null;
+	}
+
+	/**
+	 * Do the work of compiling an Expression.
+	 * 
+	 * @return the Local Name of the last tag in the expression
+	 */
+	@Override
+	public Object visit(Expression expressionNode, ShortVector instrs) {
+		// we compile steps from last to first as matches the tag stack
+		int totalSteps = expressionNode.jjtGetNumChildren();
+		boolean capturePosition = false;
+		String lastNodeName = "";
+		
+		for (int child = totalSteps - 1; child >= 0; child -= 2) {
+			// compile any Predicates for this step
+			Node axisStepNode = expressionNode.jjtGetChild(child);
+			int captureFlags = (Integer) axisStepNode.jjtAccept(this, instrs);
+
+			// then compile the step itself
+			// the last steps is always INSTR_ELEMENT
+			short tagInstr = XPathExpression.INSTR_ELEMENT;
+			
+			if (child != totalSteps - 1) {
+				// we're not on the "b" of ...a/b
+				Node separatorNode = expressionNode.jjtGetChild(child + 1);
+				
+				if (separatorNode instanceof SlashSlash) {
+					// this tag is the "b" in a/b//c...
+					tagInstr = XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT;
+				}
+			}
+			
+			if (capturePosition) {
+				// the node below us needs to know its position(), i.e.
+				// we're now at the "b" of a/b/c[position() > 3]
+			}
+		}
+		return null;
+	}
+	
+	private String compileExpression(Node expressionNode, ShortVector instrVector) {
+		return (String) expressionNode.jjtAccept(this, instrVector);
 	}
 	
 	/**

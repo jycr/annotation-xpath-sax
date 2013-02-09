@@ -31,11 +31,11 @@ public interface ParserConstants {
   /** RegularExpression Id. */
   int GE = 16;
   /** RegularExpression Id. */
-  int NAME = 36;
+  int NAME = 35;
   /** RegularExpression Id. */
-  int NAME_START_CHAR = 37;
+  int NAME_START_CHAR = 36;
   /** RegularExpression Id. */
-  int NAME_CHAR = 38;
+  int NAME_CHAR = 37;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -62,9 +62,8 @@ public interface ParserConstants {
     "\"<=\"",
     "\">=\"",
     "\"|\"",
-    "\"//\"",
     "\"/\"",
-    "\"*\"",
+    "\"//\"",
     "\"[\"",
     "\"]\"",
     "\"or\"",

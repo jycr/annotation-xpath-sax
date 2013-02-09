@@ -12,7 +12,7 @@ public final class XPathExpression {
 	// The list of valid Token[] values
 	public static final short INSTR_ROOT = 1;
 	public static final short INSTR_ELEMENT = 2; // the following value in Tokens[] is the index into QNames[]
-	public static final short INSTR_START_PREDICATE = 3; // unused
+	public static final short INSTR_CONTAINS = 3;
 	public static final short INSTR_ATTRIBUTE = 4; // the following value in Tokens[] is the index into QNames[]
 	public static final short INSTR_LITERAL = 5; // the following value in Tokens[] is the index into Literals[]
 	public static final short INSTR_EQ_STR = 6;
@@ -22,8 +22,8 @@ public final class XPathExpression {
 	public static final short INSTR_OR = 10;
 	public static final short INSTR_TEST_PREDICATE = 11;
 	public static final short INSTR_WILDCARD_ELEMENT = 12;
-	public static final short INSTR_WILDCARD_ATTRIBUTE = 13; // unused
-	public static final short INSTR_DOUBLE_SLASH = 14; // the following value in Tokens[] is the index into QNames
+	public static final short INSTR_STARTS_WITH = 13;
+	public static final short INSTR_NONCONSECUTIVE_ELEMENT = 14; // the following value in Tokens[] is the index into QNames
 	public static final short INSTR_POSITION = 15; // the following value in Tokens[] is the index into QNames
 	public static final short INSTR_LT = 16;
 	public static final short INSTR_GT = 17;
@@ -31,6 +31,7 @@ public final class XPathExpression {
 	public static final short INSTR_NE = 19;
 	public static final short INSTR_LE = 20;
 	public static final short INSTR_GE = 21;
+	public static final short INSTR_ENDS_WITH = 22;
 
 	private short[] mTokens = null;
 	private QName[] mQNames = null;

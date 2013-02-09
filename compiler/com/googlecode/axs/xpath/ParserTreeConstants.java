@@ -5,35 +5,33 @@ public interface ParserTreeConstants
 {
   public int JJTSTART = 0;
   public int JJTEXPRESSION = 1;
-  public int JJTABSOLUTEPATHEXPRESSION = 2;
-  public int JJTVOID = 3;
-  public int JJTCHILDEXPRESSION = 4;
-  public int JJTDECENDENTEXPRESSION = 5;
-  public int JJTWILDCARD = 6;
-  public int JJTPREDICATE = 7;
-  public int JJTOREXPRESSION = 8;
-  public int JJTANDEXPRESSION = 9;
-  public int JJTNOTEXPRESSION = 10;
-  public int JJTNUMERICCOMPARISONEXPRESSION = 11;
-  public int JJTSTRINGCOMPARISONEXPRESSION = 12;
-  public int JJTSTRINGSEARCHFUNCTION = 13;
-  public int JJTINTEGERVALUE = 14;
-  public int JJTSTRINGVALUE = 15;
-  public int JJTATTRIBUTEEXPRESSION = 16;
-  public int JJTCAPTUREATTRSFUNCTION = 17;
-  public int JJTPOSITIONFUNCTION = 18;
-  public int JJTFUNCTIONEXPRESSION = 19;
-  public int JJTNAMEVALUE = 20;
+  public int JJTSLASH = 2;
+  public int JJTSLASHSLASH = 3;
+  public int JJTSTEPEXPRESSION = 4;
+  public int JJTVOID = 5;
+  public int JJTPREDICATE = 6;
+  public int JJTOREXPRESSION = 7;
+  public int JJTANDEXPRESSION = 8;
+  public int JJTNOTEXPRESSION = 9;
+  public int JJTNUMERICCOMPARISONEXPRESSION = 10;
+  public int JJTSTRINGCOMPARISONEXPRESSION = 11;
+  public int JJTSTRINGSEARCHFUNCTION = 12;
+  public int JJTINTEGERVALUE = 13;
+  public int JJTSTRINGVALUE = 14;
+  public int JJTATTRIBUTEEXPRESSION = 15;
+  public int JJTCAPTUREATTRSFUNCTION = 16;
+  public int JJTPOSITIONFUNCTION = 17;
+  public int JJTFUNCTIONEXPRESSION = 18;
+  public int JJTNAMEVALUE = 19;
 
 
   public String[] jjtNodeName = {
     "Start",
     "Expression",
-    "AbsolutePathExpression",
+    "Slash",
+    "SlashSlash",
+    "StepExpression",
     "void",
-    "ChildExpression",
-    "DecendentExpression",
-    "Wildcard",
     "Predicate",
     "OrExpression",
     "AndExpression",
@@ -50,4 +48,4 @@ public interface ParserTreeConstants
     "NameValue",
   };
 }
-/* JavaCC - OriginalChecksum=9b4801bf5a0bd14256bfa664cd1a6dea (do not edit this line) */
+/* JavaCC - OriginalChecksum=ad6e9128efabd4565f5c6b17007570a1 (do not edit this line) */
