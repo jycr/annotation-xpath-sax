@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="AnnotatedXPathSAX">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+
+   	<tstamp/>
+ 	<property name="build" location="build"/>
+  	<property name="dist"  location="dist"/>
+  	
+  	<!-- The root directory of your JavaCC install. Only required if you're hacking on the XPath parser -->
+  	<property name="javacc-home" location="C:/NonInstallerPrograms/javacc-5.0"/>
+
+    <property name="runtime-src" location="runtime"/>
+    <property name="compiler-src" location="compiler"/>
+    <property name="tests-src" location="tests"/>
+	<property name="runtime-build" location="${build}/runtime"/>
+ 	<property name="compiler-build" location="${build}/compiler"/>
+ 	<property name="tests-build" location="${build}/tests"/>
+  	
+ 	<property name="runtime-jar" location="${dist}/lib/axs-runtime-${DSTAMP}.jar"/>
+ 	<property name="compiler-jar" location="${dist}/lib/axs-annotation-compiler-${DSTAMP}.jar"/>
+ 	
+ 	<target name="init">
+	    <!-- Create the build directory structure used by compile -->
+	    <mkdir dir="${build}"/>
+	    <mkdir dir="${runtime-build}"/>
+	    <mkdir dir="${compiler-build}"/>
+	    <mkdir dir="${tests-build}"/>
+  	</target>
+    
+    <target name="build-runtime" depends="init">
+    	<javac includeantruntime="false" srcdir="${runtime-src}" destdir="${runtime-build}"/>
+    </target>
+    
+    <target name="build-runtime-jar" depends="build-runtime">
+        <mkdir dir="${dist}/lib"/>
+        <jar jarfile="${runtime-jar}" 
+            basedir="${runtime-build}"/>
+    </target>
+    
+    <target name="build-compiler" depends="init">
+        <mkdir dir="${compiler-build}/resources"/>
+        <copy todir="${compiler-build}">
+            <fileset dir="${compiler-src}">
+                <include name="resources/*"/>
+            </fileset>
+        </copy>
+        <copy todir="${compiler-build}/resources" file="LICENSE"/>
+    	<javac includeantruntime="false" srcdir="${compiler-src}:${runtime-src}" destdir="${compiler-build}"/>
+    </target>
+    
+    <target name="build-compiler-jar" depends="build-compiler">
+        <mkdir dir="${dist}/lib"/>
+        <jar jarfile="${compiler-jar}" 
+            basedir="${compiler-build}">
+            <service type="javax.annotation.processing.Processor"
+                provider="com.googlecode.axs.AnnotationProcessor"/>
+        </jar>
+    </target>
+    
+    <target name="build-tests" depends="build-compiler-jar">
+        <mkdir dir="${tests-build}/generated"/>
+        <javac includeantruntime="false" srcdir="${tests-src}" destdir="${tests-build}" classpath="${runtime-jar}">
+            <compilerarg value="-processorpath"/>
+            <compilerarg value="${compiler-jar}"/>
+            <compilerarg value="-s"/>
+            <compilerarg value="${tests-build}/generated"/>
+        </javac>
+        <javac includeantruntime="false" srcdir="${tests-build}/generated" destdir="${tests-build}" classpath="${tests-build}:${runtime-jar}"/>
+    </target>
+    
+    <target name="build" depends="build-runtime-jar,build-compiler-jar,build-tests"/>
+    
+    <target name="rebuild-grammar" depends="init">
+        <jjtree target="${compiler-src}/com/googlecode/axs/xpath/Parser.jjt" 
+            javacchome="${javacc-home}" static="false" outputdirectory="${compiler-src}/com/googlecode/axs/xpath"/>
+        <javacc target="${compiler-src}/com/googlecode/axs/xpath/Parser.jj"
+            javacchome="${javacc-home}" static="false" outputdirectory="${compiler-src}/com/googlecode/axs/xpath"/>
+    </target>
+        
+    <target name="clean" description="clean up">
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+    </target>
+</project>

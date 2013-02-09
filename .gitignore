@@ -1,0 +1,16 @@
+# files for Git to ignore
+
+*~
+\#*\#
+
+*.class
+classes.dex
+*.apk
+resources.ap_
+res/*/.metadata/*
+build/*
+dist/*
+.classpath
+.settings/
+.project
+
