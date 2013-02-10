@@ -418,7 +418,6 @@ public class CompiledAXSData implements ParserVisitor {
 	public Object visit(Expression expressionNode, ShortVector instrs) {
 		// we compile steps from last to first as matches the tag stack
 		int totalSteps = expressionNode.jjtGetNumChildren();
-		boolean capturePosition = false;
 		
 		if (totalSteps == 0) {
 			errorMessage("An XPath expression must have at least one element");
@@ -465,14 +464,6 @@ public class CompiledAXSData implements ParserVisitor {
 			instrs.push(tagInstr);
 			instrs.push(addQName(qName));
 			
-			// handle captures
-			if (capturePosition) {
-				// the node below us needs to know its position(), i.e.
-				// we're now at the "b" of a/b/c[position() > 3]
-				mPositionCaptureTags.add(qName.getLocalPart());
-				capturePosition = false;
-			}
-			
 			if ((captureFlags & CAPTURE_ATTRIBUTES) != 0) {
 				mAttributeCaptureTags.add(qName.getLocalPart());
 			}
@@ -482,7 +473,7 @@ public class CompiledAXSData implements ParserVisitor {
 					// this is the topmost node in the pattern: we can't capture positions for it
 					errorMessage("Cannot use position() predicates for the topmost node in a path");
 				}
-				capturePosition = true;
+				mPositionCaptureTags.add(qName.getLocalPart());
 			}
 		}
 		

@@ -74,6 +74,8 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 	private StringBuilder mCachedStringBuilder = null;
 	private HashMap<QName, String> mCachedAttributesMap = null;
 	private HashMap<QName, Position> mCachedPositionMap = null;
+
+	private static final boolean TRACE_EXECUTION = true;
 	
 	public AbstractAnnotatedHandler() {
 		super();
@@ -136,6 +138,14 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 		super.endPrefixMapping(prefix);
 	}
 */
+	
+	private void instrOk() {
+		System.out.println("ok");
+	}
+	
+	private void instrFail() {
+		System.out.println("fail");
+	}
 
 	/**
 	 * Test an XPathExpression against the current tag.
@@ -154,6 +164,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 		String[] stringStack = mPredicateStringStack;
 		int ssp = 0;
 		
+		if (TRACE_EXECUTION)
+			System.out.println("testExpression(): start");
+		
 		// We implement predicates as a simple stack machine, while nodes are tested
 		// directly against the tag stack. The expression is compiled to a reverse-Polish
 		// form, where we test from the top of the tag stack back up towards the root.
@@ -164,20 +177,39 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 			switch (token) {
 			case XPathExpression.INSTR_ROOT:
 				// test if we've hit the document root
-				if (--tagp != -1)
+				if (TRACE_EXECUTION)
+					System.out.print("ROOT: ");
+				if (--tagp != -1) {
+					if (TRACE_EXECUTION)
+						instrFail();
 					return false;
+				}
+				if (TRACE_EXECUTION)
+					instrOk();
 				break;
 			case XPathExpression.INSTR_ELEMENT:
 			{
-				// test if the current node is a specific tag
-				if (tagp < 0)
-					return false;
-				final QName tag = mTagStack.get(tagp);
 				final QName wantedTag = qNames[tokens[++ip]];
+				
+				if (TRACE_EXECUTION)
+					System.out.print("ELEMENT(" + wantedTag + "): ");
 
-				if (!tag.equals(wantedTag)) {
+				// test if the current node is a specific tag
+				if (tagp < 0) {
+					if (TRACE_EXECUTION)
+						instrFail();
 					return false;
 				}
+				final QName tag = mTagStack.get(tagp);
+
+				if (!tag.equals(wantedTag)) {
+					if (TRACE_EXECUTION)
+						instrFail();
+					return false;
+				}
+				
+				if (TRACE_EXECUTION)
+					instrOk();
 
 				// consume this level in the tag stack
 				tagp--;
@@ -190,22 +222,40 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				} else {
 					evaluationStack[esp++] = 0;
 				}
+				
+				if (TRACE_EXECUTION)
+					System.out.println("CONTAINS(\"" + stringStack[0] + "\", \"" +
+										stringStack[1] + "\"): " + evaluationStack[esp-1]);
 				ssp = 0;
 				break;
 			}
 			case XPathExpression.INSTR_ATTRIBUTE:
 			{
-				// push the value of an attribute onto the predicate string stack
-				if (tagp < 0)
-					return false;
 				final QName attrName = qNames[tokens[++ip]];
+
+				if (TRACE_EXECUTION)
+					System.out.print("ATTRIBUTE(" + attrName + "): ");
+
+				// push the value of an attribute onto the predicate string stack
+				if (tagp < 0) {
+					if (TRACE_EXECUTION)
+						instrFail();
+					return false;
+				}
 				final String value = mAttributesStack.get(tagp).get(attrName);
 				stringStack[ssp++] = (value != null ? value : "");
+				
+				if (TRACE_EXECUTION)
+					System.out.println(stringStack[ssp-1]);
+
 				break;
 			}
 			case XPathExpression.INSTR_LITERAL:
 				// push a literal onto the predicate string stack
 				stringStack[ssp++] = literals[tokens[++ip]];
+				
+				if (TRACE_EXECUTION)
+					System.out.println("LITERAL(\"" + stringStack[ssp-1] + "\")");
 				break;
 			case XPathExpression.INSTR_EQ_STR:
 				// compare the two strings on the string stack and push the result
@@ -216,6 +266,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 					evaluationStack[esp++] = 0;
 				}
 				ssp = 0;
+				
+				if (TRACE_EXECUTION)
+					System.out.println("EQ_STR: " + evaluationStack[esp-1]);
 				break;
 			case XPathExpression.INSTR_NOT:
 				// invert the sense of the top of the evaluation stack
@@ -224,10 +277,16 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				} else {
 					evaluationStack[esp-1] = 0;
 				}
+				
+				if (TRACE_EXECUTION)
+					System.out.println("NOT: " + evaluationStack[esp-1]);
 				break;
 			case XPathExpression.INSTR_ILITERAL:
 				// push a numeric value onto the evaluation stack
 				evaluationStack[esp++] = tokens[++ip];
+				
+				if (TRACE_EXECUTION)
+					System.out.println("ILITERAL(" + evaluationStack[esp-1] + ")");
 				break;
 			case XPathExpression.INSTR_AND:
 			{
@@ -235,6 +294,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				final int i1 = evaluationStack[--esp];
 				final int i2 = evaluationStack[esp-1];
 				evaluationStack[esp-1] = ((i1 != 0) && (i2 != 0) ? 1 : 0);
+				
+				if (TRACE_EXECUTION)
+					System.out.println("AND: " + evaluationStack[esp-1]);
 				break;
 			}
 			case XPathExpression.INSTR_OR:
@@ -243,13 +305,25 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				final int i1 = evaluationStack[--esp];
 				final int i2 = evaluationStack[esp-1];
 				evaluationStack[esp-1] = ((i1 != 0) || (i2 != 0) ? 1 : 0);
+				
+				if (TRACE_EXECUTION)
+					System.out.println("OR: " + evaluationStack[esp-1]);
 				break;
 			}
 			case XPathExpression.INSTR_TEST_PREDICATE:
 				// test whether the predicate matched
-				if (esp != 1 || evaluationStack[0] == 0)
+				if (TRACE_EXECUTION)
+					System.out.print("TEST_PREDICATE: ");
+
+				if (esp != 1 || evaluationStack[0] == 0) {
+					if (TRACE_EXECUTION)
+						instrFail();
 					return false;
+				}
+
 				esp = 0;
+				if (TRACE_EXECUTION)
+					instrOk();
 				break;
 			case XPathExpression.INSTR_ENDS_WITH:
 			{
@@ -259,6 +333,10 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 					evaluationStack[esp++] = 0;
 				}
 				ssp = 0;
+				
+				if (TRACE_EXECUTION)
+					System.out.println("ENDS_WITH(\"" + stringStack[0] + "\", \"" +
+										stringStack[1] + "\"): " + evaluationStack[esp-1]);
 				break;
 			}
 			case XPathExpression.INSTR_STARTS_WITH:
@@ -269,29 +347,50 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 					evaluationStack[esp++] = 0;
 				}
 				ssp = 0;
+				
+				if (TRACE_EXECUTION)
+					System.out.println("STARTS_WITH(\"" + stringStack[0] + "\", \"" +
+										stringStack[1] + "\"): " + evaluationStack[esp-1]);
 				break;
 			}
 			case XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT:
 				// consume any number of tags until the QName before the double slash is found
 			{
 				final QName targetTag = qNames[tokens[++ip]];
+				
+				if (TRACE_EXECUTION)
+					System.out.print("NONCONSECUTIVE_ELEMENT(" + targetTag + "): ");
 				while (tagp >= 0) {
 					if (mTagStack.get(tagp).equals(targetTag))
 						break;
 					tagp--;
 				}
-				if (tagp < 0)
+				if (tagp < 0) {
+					if (TRACE_EXECUTION)
+						instrFail();
 					return false;
+				}
+				if (TRACE_EXECUTION)
+					instrOk();
 				break;
 			}
 			case XPathExpression.INSTR_POSITION:
 				// push the position() of the current tag onto the evaluation stack
-				if (tagp <= 0)
+				if (TRACE_EXECUTION)
+					System.out.print("POSITION: ");
+
+				if (tagp <= 0) {
+					if (TRACE_EXECUTION)
+						instrFail();
 					return false;
+				}
 				// look up the current tag under its parent
 				final HashMap<QName, Position> posMap = mPositionCaptureStack.get(tagp-1);
 				final int pos = posMap.get(qNames[tokens[++ip]]).get();
 				evaluationStack[esp++] = pos;
+				
+				if (TRACE_EXECUTION)
+					System.out.println(String.valueOf(evaluationStack[esp-1]));
 				break;
 			case XPathExpression.INSTR_LT:
 			{
@@ -299,6 +398,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				final int i1 = evaluationStack[--esp];
 				final int i2 = evaluationStack[esp-1];
 				evaluationStack[esp-1] = (i2 < i1 ? 1 : 0);
+				
+				if (TRACE_EXECUTION)
+					System.out.println("LT: " + evaluationStack[esp-1]);
 				break;
 			}
 			case XPathExpression.INSTR_GT:
@@ -307,6 +409,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				final int i1 = evaluationStack[--esp];
 				final int i2 = evaluationStack[esp-1];
 				evaluationStack[esp-1] = (i2 > i1 ? 1 : 0);
+				
+				if (TRACE_EXECUTION)
+					System.out.println("GT: " + evaluationStack[esp-1]);
 				break;
 			}
 			case XPathExpression.INSTR_EQ:
@@ -315,6 +420,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				final int i1 = evaluationStack[--esp];
 				final int i2 = evaluationStack[esp-1];
 				evaluationStack[esp-1] = (i2 == i1 ? 1 : 0);
+				
+				if (TRACE_EXECUTION)
+					System.out.println("ET: " + evaluationStack[esp-1]);
 				break;
 			}
 			case XPathExpression.INSTR_NE:
@@ -323,6 +431,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				final int i1 = evaluationStack[--esp];
 				final int i2 = evaluationStack[esp-1];
 				evaluationStack[esp-1] = (i2 != i1 ? 1 : 0);
+				
+				if (TRACE_EXECUTION)
+					System.out.println("NE: " + evaluationStack[esp-1]);
 				break;
 			}
 			case XPathExpression.INSTR_LE:
@@ -331,6 +442,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				final int i1 = evaluationStack[--esp];
 				final int i2 = evaluationStack[esp-1];
 				evaluationStack[esp-1] = (i2 <= i1 ? 1 : 0);
+				
+				if (TRACE_EXECUTION)
+					System.out.println("LE: " + evaluationStack[esp-1]);
 				break;
 			}
 			case XPathExpression.INSTR_GE:
@@ -339,6 +453,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				final int i1 = evaluationStack[--esp];
 				final int i2 = evaluationStack[esp-1];
 				evaluationStack[esp-1] = (i2 >= i1 ? 1 : 0);
+				
+				if (TRACE_EXECUTION)
+					System.out.println("GE: " + evaluationStack[esp-1]);
 				break;
 			}
 			default:
@@ -386,7 +503,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 			final String localName = attrs.getLocalName(i);
 			final String value = attrs.getValue(i);
 			
-			map.put(makeQName(uri, localName, null), value);
+			map.put(makeQName(uri, localName, localName), value);
 		}
 		
 		// push the map onto the attributes stack
@@ -448,13 +565,16 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 	 */
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
+		System.out.println("startElement: <" + qName + ">");
 		// push this tag onto the stack
 		final QName qn = makeQName(uri, localName, qName);
 		mTagStack.push(qn);
 		
+		String normalizedLocalName = qn.getLocalPart();
+		
 		// test whether to perform attribute capture
 		if (mCaptureAttributes) {
-			if (mAttributeCaptureTags.contains(qn.getLocalPart())) {
+			if (mAttributeCaptureTags.contains(normalizedLocalName)) {
 				captureAttributes(attrs);
 			} else {
 				mAttributesStack.push(null);
@@ -463,7 +583,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 
 		// test whether to perform position capture
 		if (mCapturePositions) {
-			if (mPositionCaptureTags.contains(qn.getLocalPart())) {
+			if (mPositionCaptureTags.contains(normalizedLocalName)) {
 				// update the position marker in the parent tag's level in the stack
 				capturePosition(qn);
 			}
@@ -476,7 +596,10 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 
 		// test whether we should start text capture for one or more expressions
 		// and test whether we have any expressions to fire
-		int[] triggeredExpressions = mTriggerTags.get(qn.getLocalPart());
+		int[] triggeredExpressions = mTriggerTags.get(normalizedLocalName);
+		
+		if (triggeredExpressions == null)
+			return;
 		
 		for (final int exprIndex : triggeredExpressions) {
 			// skip @XPathEnd() expressions
@@ -526,6 +649,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
+		System.out.println("endElement: <" + qName + ">");
 		// if we've completed a capture, close it out
 		String text = null;
 		final StringBuilder sb = mTextCaptureStack.pop();
@@ -539,21 +663,23 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 		// test whether we have any expressions to fire
 		int[] triggeredExpressions = mTriggerTags.get(uri.equals("") ? qName : localName);
 		
-		for (final int exprIndex : triggeredExpressions) {
-			// skip @XPathStart() expressions
-			if (exprIndex >= mNrCaptureExpressions+mNrEndExpressions)
-				continue;
-			
-			if (!testExpression(mExpressions[exprIndex]))
-				continue;
-			
-			// the expression matched: execute it
-			if (exprIndex < mNrCaptureExpressions) {
-				// we've found the end of an @XPath() expression: fire it
-				mAXSData.callXPathText(this, exprIndex, text);
-			} else {
-				// must be an @XPathEnd() expression: fire it
-				mAXSData.callXPathEnd(this, exprIndex);
+		if (triggeredExpressions != null) {
+			for (final int exprIndex : triggeredExpressions) {
+				// skip @XPathStart() expressions
+				if (exprIndex >= mNrCaptureExpressions+mNrEndExpressions)
+					continue;
+				
+				if (!testExpression(mExpressions[exprIndex]))
+					continue;
+				
+				// the expression matched: execute it
+				if (exprIndex < mNrCaptureExpressions) {
+					// we've found the end of an @XPath() expression: fire it
+					mAXSData.callXPathText(this, exprIndex, text);
+				} else {
+					// must be an @XPathEnd() expression: fire it
+					mAXSData.callXPathEnd(this, exprIndex);
+				}
 			}
 		}
 		
