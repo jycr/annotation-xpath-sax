@@ -183,6 +183,15 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				tagp--;
 				break;
 			}
+			case XPathExpression.INSTR_CONTAINS:
+			{
+				if (stringStack[0].contains(stringStack[1])) {
+					evaluationStack[esp++] = 1;
+				} else {
+					evaluationStack[esp++] = 0;
+				}
+				break;
+			}
 			case XPathExpression.INSTR_ATTRIBUTE:
 			{
 				// push the value of an attribute onto the predicate string stack
@@ -241,6 +250,24 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 					return false;
 				esp = 0;
 				break;
+			case XPathExpression.INSTR_ENDS_WITH:
+			{
+				if (stringStack[0].endsWith(stringStack[1])) {
+					evaluationStack[esp++] = 1;
+				} else {
+					evaluationStack[esp++] = 0;
+				}
+				break;
+			}
+			case XPathExpression.INSTR_STARTS_WITH:
+			{
+				if (stringStack[0].startsWith(stringStack[1])) {
+					evaluationStack[esp++] = 1;
+				} else {
+					evaluationStack[esp++] = 0;
+				}
+				break;
+			}
 			case XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT:
 				// consume any number of tags until the QName before the double slash is found
 			{

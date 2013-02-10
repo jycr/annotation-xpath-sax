@@ -58,7 +58,7 @@ public class CompiledAXSData implements ParserVisitor {
 		mQNameIndices = new HashMap<QName, Integer>();
 	}
 
-	private int mMaxPredicateStackDepth = 0;
+	private int mMaxPredicateStackDepth = 0, mCurrentPredicateStackDepth = 0;
 	private Vector<ShortVector> mTokens = null;
 	private Vector<String> mLiterals = null;
 	private Vector<QName> mQNames = null;
@@ -151,6 +151,26 @@ public class CompiledAXSData implements ParserVisitor {
 		return (short)(mQNames.size() - 1);
 	}
 	
+	/**
+	 * Add @p n to the stack size required for this expression.
+	 * @param n
+	 */
+	private void requireStackDepth(int n) {
+		mCurrentPredicateStackDepth += n;
+	}
+	
+	/**
+	 * Start the process of tracking stack sizes needed for this predicate.
+	 */
+	private void startTrackingStackDepth() {
+		mCurrentPredicateStackDepth = 0;
+	}
+	
+	private void finishTrackingStackDepth() {
+		if (mCurrentPredicateStackDepth > mMaxPredicateStackDepth)
+			mMaxPredicateStackDepth = mCurrentPredicateStackDepth;
+	}
+	
 	@Override
 	public Object visit(SimpleNode node, ShortVector data) {
 		errorMessage("Got an unhandled #" + node.getClass().getSimpleName() + " node in the parse tree!");
@@ -201,10 +221,15 @@ public class CompiledAXSData implements ParserVisitor {
 	public Object visit(Predicate node, ShortVector instrs) {
 		int captures = CAPTURE_NONE;
 		
+		startTrackingStackDepth();
+		
 		if (node.jjtGetNumChildren() == 1 && node.jjtGetChild(0) instanceof IntegerValue) {
 			// it's an implicit position() predicate, e.g. bar/foo[3]
+			requireStackDepth(1);
 			instrs.push(XPathExpression.INSTR_POSITION);
+			
 			node.jjtGetChild(0).jjtAccept(this, instrs);
+			
 			instrs.push(XPathExpression.INSTR_EQ);
 			captures |= CAPTURE_POSITIONS;
 		} else {
@@ -212,6 +237,8 @@ public class CompiledAXSData implements ParserVisitor {
 				captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
 			}
 		}
+		
+		finishTrackingStackDepth();
 
 		instrs.push(XPathExpression.INSTR_TEST_PREDICATE);
 		return captures;
@@ -300,14 +327,33 @@ public class CompiledAXSData implements ParserVisitor {
 
 	@Override
 	public Object visit(StringSearchFunction node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return CAPTURE_NONE;
+		assert(node.jjtGetNumChildren() == 2);
+		int captures = CAPTURE_NONE;
+		
+		for (int i = 0; i < 2; i++) {
+			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
+		}
+		
+		String fnName = (String) node.jjtGetValue();
+		
+		if ("contains".equals(fnName)) {
+			instrs.push(XPathExpression.INSTR_CONTAINS);
+		} else if ("starts-with".equals(fnName)) {
+			instrs.push(XPathExpression.INSTR_STARTS_WITH);
+		} else if ("ends-with".equals(fnName)) {
+			instrs.push(XPathExpression.INSTR_ENDS_WITH);
+		} else {
+			errorMessage("Unknown string comparison function \"" + fnName + "\"");
+		}
+
+		return captures;
 	}
 
 	@Override
 	public Object visit(IntegerValue node, ShortVector instrs) {
 		String ival = (String) node.jjtGetValue();
 		
+		requireStackDepth(1);
 		instrs.push(XPathExpression.INSTR_ILITERAL);
 		instrs.push(Short.parseShort(ival));
 		return CAPTURE_NONE;
@@ -316,6 +362,8 @@ public class CompiledAXSData implements ParserVisitor {
 	@Override
 	public Object visit(StringValue node, ShortVector instrs) {
 		String str = (String) node.jjtGetValue();
+
+		requireStackDepth(1);
 		instrs.push(XPathExpression.INSTR_LITERAL);
 		instrs.push(addLiteral(str));
 		return CAPTURE_NONE;
@@ -332,6 +380,7 @@ public class CompiledAXSData implements ParserVisitor {
 		}
 		QName qName = parseQName(name);
 		
+		requireStackDepth(1);
 		instrs.push(XPathExpression.INSTR_ATTRIBUTE);
 		instrs.push(addQName(qName));
 		return CAPTURE_ATTRIBUTES;
@@ -339,6 +388,7 @@ public class CompiledAXSData implements ParserVisitor {
 
 	@Override
 	public Object visit(CaptureAttrsFunction node, ShortVector instrs) {
+		requireStackDepth(1);
 		instrs.push(XPathExpression.INSTR_ILITERAL);
 		instrs.push((short) 1);
 		return CAPTURE_ATTRIBUTES;
@@ -346,6 +396,7 @@ public class CompiledAXSData implements ParserVisitor {
 
 	@Override
 	public Object visit(PositionFunction node, ShortVector instrs) {
+		requireStackDepth(1);
 		instrs.push(XPathExpression.INSTR_POSITION);
 		return CAPTURE_POSITIONS;
 	}
