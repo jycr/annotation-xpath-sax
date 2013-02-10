@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.annotation.processing.Messager;
+import javax.lang.model.element.Element;
 import javax.tools.Diagnostic.Kind;
 import javax.xml.namespace.QName;
 
@@ -16,7 +17,6 @@ import com.googlecode.axs.xpath.AndExpression;
 import com.googlecode.axs.xpath.AttributeExpression;
 import com.googlecode.axs.xpath.CaptureAttrsFunction;
 import com.googlecode.axs.xpath.Expression;
-import com.googlecode.axs.xpath.FunctionExpression;
 import com.googlecode.axs.xpath.IntegerValue;
 import com.googlecode.axs.xpath.NameValue;
 import com.googlecode.axs.xpath.Node;
@@ -96,9 +96,10 @@ public class CompiledAXSData implements ParserVisitor {
 	private int mNrXPathMethods = 0;
 	private int mNrXPathEndMethods = 0;
 	private int mNrXPathStartMethods = 0;
+	private Element mCurrentMethodElement = null;
 
 	private void errorMessage(String message) {
-		mMessager.printMessage(Kind.ERROR, message, mClass.classElement());
+		mMessager.printMessage(Kind.ERROR, message, mCurrentMethodElement);
 	}
 	
 	/**
@@ -191,81 +192,162 @@ public class CompiledAXSData implements ParserVisitor {
 		int captures = CAPTURE_NONE;
 		
 		for (int i = 1, children = node.jjtGetNumChildren(); i < children; i++) {
-//			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
+			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
 		}
 		return captures;
 	}
 	
 	@Override
 	public Object visit(Predicate node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		int captures = CAPTURE_NONE;
+		
+		if (node.jjtGetNumChildren() == 1 && node.jjtGetChild(0) instanceof IntegerValue) {
+			// it's an implicit position() predicate, e.g. bar/foo[3]
+			instrs.push(XPathExpression.INSTR_POSITION);
+			node.jjtGetChild(0).jjtAccept(this, instrs);
+			instrs.push(XPathExpression.INSTR_EQ);
+			captures |= CAPTURE_POSITIONS;
+		} else {
+			for (int i = 0, children = node.jjtGetNumChildren(); i < children; i++) {
+				captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
+			}
+		}
+
+		instrs.push(XPathExpression.INSTR_TEST_PREDICATE);
+		return captures;
 	}
 
 	@Override
 	public Object visit(OrExpression node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		assert(node.jjtGetNumChildren() == 0);
+		int captures = CAPTURE_NONE;
+		
+		for (int i = 0; i < 2; i++) {
+			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
+		}
+		instrs.push(XPathExpression.INSTR_OR);
+		return captures;
 	}
 
 	@Override
 	public Object visit(AndExpression node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		assert(node.jjtGetNumChildren() == 0);
+		int captures = CAPTURE_NONE;
+		
+		for (int i = 0; i < 2; i++) {
+			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
+		}
+		instrs.push(XPathExpression.INSTR_AND);
+		return captures;
 	}
 
 	@Override
 	public Object visit(NotExpression node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		assert(node.jjtGetNumChildren() == 1);
+		int captures = (Integer) node.jjtGetChild(0).jjtAccept(this, instrs);
+		instrs.push(XPathExpression.INSTR_NOT);
+		return captures;
 	}
 
 	@Override
 	public Object visit(NumericComparisonExpression node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		assert(node.jjtGetNumChildren() == 2);
+		int captures = CAPTURE_NONE;
+		
+		for (int i = 0; i < 2; i++) {
+			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
+		}
+		
+		String op = (String) node.jjtGetValue();
+		if ("=".equals(op)) {
+			instrs.push(XPathExpression.INSTR_EQ);
+		} else if ("!=".equals(op)) {
+			instrs.push(XPathExpression.INSTR_NE);
+		} else if (">".equals(op)) {
+			instrs.push(XPathExpression.INSTR_GT);
+		} else if ("<".equals(op)) {
+			instrs.push(XPathExpression.INSTR_LT);
+		} else if (">=".equals(op)) {
+			instrs.push(XPathExpression.INSTR_GE);
+		} else if ("<=".equals(op)) {
+			instrs.push(XPathExpression.INSTR_LE);
+		} else {
+			errorMessage("Unknown binary operator \"" + op + "\"");
+		}
+		return captures;
 	}
 
 	@Override
 	public Object visit(StringComparisonExpression node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		assert(node.jjtGetNumChildren() == 2);
+		int captures = CAPTURE_NONE;
+		
+		for (int i = 0; i < 2; i++) {
+			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
+		}
+		
+		String op = (String) node.jjtGetValue();
+		if ("=".equals(op)) {
+			instrs.push(XPathExpression.INSTR_EQ_STR);
+		} else if ("!=".equals(op)) {
+			instrs.push(XPathExpression.INSTR_EQ_STR);
+			instrs.push(XPathExpression.INSTR_NOT);
+		} else {
+			errorMessage("Unknown binary operator \"" + op + "\"");
+		}
+		return captures;
 	}
 
 	@Override
 	public Object visit(StringSearchFunction node, ShortVector instrs) {
 		// TODO Auto-generated method stub
-		return null;
+		return CAPTURE_NONE;
 	}
 
 	@Override
 	public Object visit(IntegerValue node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		String ival = (String) node.jjtGetValue();
+		
+		instrs.push(XPathExpression.INSTR_ILITERAL);
+		instrs.push(Short.parseShort(ival));
+		return CAPTURE_NONE;
 	}
 
 	@Override
 	public Object visit(StringValue node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		String str = (String) node.jjtGetValue();
+		instrs.push(XPathExpression.INSTR_LITERAL);
+		instrs.push(addLiteral(str));
+		return CAPTURE_NONE;
 	}
 
 	@Override
 	public Object visit(AttributeExpression node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		String name = (String) node.jjtGetChild(0).jjtAccept(this, instrs);
+		
+		if (name.startsWith("child::") || name.startsWith("decendent::")) {
+			errorMessage("Cannot use Element as a value in a predicate");
+		} else if (name.startsWith("attribute::")) {
+			name = name.substring(11);
+		}
+		QName qName = parseQName(name);
+		
+		instrs.push(XPathExpression.INSTR_ATTRIBUTE);
+		instrs.push(addQName(qName));
+		return CAPTURE_ATTRIBUTES;
 	}
 
 	@Override
 	public Object visit(CaptureAttrsFunction node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		instrs.push(XPathExpression.INSTR_ILITERAL);
+		instrs.push((short) 1);
+		return CAPTURE_ATTRIBUTES;
 	}
 
 	@Override
 	public Object visit(PositionFunction node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
+		instrs.push(XPathExpression.INSTR_POSITION);
+		return CAPTURE_POSITIONS;
 	}
 
 	/**
@@ -379,7 +461,7 @@ public class CompiledAXSData implements ParserVisitor {
 	 * @param xpathExpression the XPath annotation of the annotated method
 	 */
 	private void compileOneExpression(String methodName, String xpathExpression) {
-		final Map<String, String> prefixMap = mClass.prefixMap();
+		mCurrentMethodElement = mClass.methodElements().get(methodName);
 		
 		// invoke the JJTree/JavaCC parser in com.googlecode.axs.xpath.Parser
 		Parser parser = new Parser(new StringReader(xpathExpression));

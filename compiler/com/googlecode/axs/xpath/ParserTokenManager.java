@@ -697,7 +697,7 @@ private int jjMoveStringLiteralDfa0_1()
 {
    switch(curChar)
    {
-      case 42:
+      case 58:
          return jjMoveStringLiteralDfa1_1(0x40L);
       default :
          return 1;

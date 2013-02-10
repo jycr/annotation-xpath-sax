@@ -26,6 +26,9 @@ class AnnotatedClass {
 	private HashMap<String, String> mXPathEndMethods = new HashMap<String, String>();
 	private HashMap<String, String> mXPathStartMethods = new HashMap<String, String>();
 	
+	// maps of method names to Elements
+	private HashMap<String, Element> mMethodElements = new HashMap<String, Element>();
+	
 	// map of prefixes to Namespace URIs
 	private HashMap<String, String> mPrefixMap = new HashMap<String, String>();
 	
@@ -37,6 +40,8 @@ class AnnotatedClass {
 	public void addMethodAnnotation(Element methodElement, TypeElement annotationElement) {
 		final String aType = annotationElement.getSimpleName().toString();
 		final String method = methodElement.getSimpleName().toString();
+		
+		mMethodElements.put(method, methodElement);
 		
 		if ("XPath".equals(aType)) {
 			XPath xp = methodElement.getAnnotation(XPath.class);
@@ -82,6 +87,10 @@ class AnnotatedClass {
 	
 	public TypeElement classElement() {
 		return mClassElement;
+	}
+	
+	public Map<String, Element> methodElements() {
+		return mMethodElements;
 	}
 	
 	public Map<String, String> xPathMethods() {

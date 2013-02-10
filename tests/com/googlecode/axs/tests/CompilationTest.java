@@ -18,12 +18,12 @@ public class CompilationTest extends AbstractAnnotatedHandler {
 		super();
 	}
 
-	@XPath("foo/bar")
+	@XPath("foo/ (: not baz :) bar")
 	public void barElement(String text) {
 		
 	}
 	
-	@XPath("/foo[2]")
+	@XPath("/grep[captureattrs()]//foo[2]")
 	public void fooElement2(String text) {
 		
 	}

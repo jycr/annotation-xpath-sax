@@ -51,7 +51,7 @@ class AXSDataWriter {
 		writeTriggerTags(w, axsData.triggers());
 		writeSet(w, "AttributeCaptureTags", "getAttributeCaptureTags", axsData.attributeCaptureTags());
 		writeSet(w, "PositionCaptureTags", "getPositionCaptureTags", axsData.positionCaptureTags());
-		writeExpressions(w, axsData.tokens(), axsData.literals(), axsData.qNames());
+		writeExpressions(w, methods, axsData.tokens(), axsData.literals(), axsData.qNames());
 		writeFooter(w);
 	}
 	
@@ -166,7 +166,7 @@ class AXSDataWriter {
 		
 		for (int i = 0, len = methods.size(); i < len; i++) {
 			indent(w, 8); w.write("case " + methods.get(i).index() + ": \n");
-			indent(w, 12); w.write("// " + methods.get(i).expression() + "\n");
+			indent(w, 12); w.write("// \"" + methods.get(i).expression() + "\"\n");
 			indent(w, 12); w.write("handler." + methods.get(i).name() + "(");
 			if (argType != null)
 				w.write("callbackArg");
@@ -219,7 +219,7 @@ class AXSDataWriter {
 		indent(w, 16); w.write("return " + setName + ";\n\n");
 		indent(w, 12); w.write(setName + " = new HashSet<String>();\n");
 		for (String s : set) {
-			indent(w, 12); w.write(setName + ".put(\"" + s + "\");\n");
+			indent(w, 12); w.write(setName + ".add(\"" + s + "\");\n");
 		}
 		indent(w, 8); w.write("}\n");
 		indent(w, 8); w.write("return " + setName + ";\n");
@@ -230,7 +230,7 @@ class AXSDataWriter {
 	// they are package-scope, since they're needed in CompiledAXSData as well
 	// how many token slots a given TOKEN occupies
 	static final int[] TokenLengths = {
-		1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1
+		1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1
 	};
 	
 	// the XPathExpression.* names for each token value
@@ -338,7 +338,7 @@ class AXSDataWriter {
 		indent(w, in); w.write("}");
 	}
 
-	private static void writeExpressions(Writer w, Vector<ShortVector> tokens, Vector<String> literals, Vector<QName> qNames) throws IOException {
+	private static void writeExpressions(Writer w, Vector<CompiledAXSData.Method> methods, Vector<ShortVector> tokens, Vector<String> literals, Vector<QName> qNames) throws IOException {
 		indent(w, 4); w.write("private static String[] Literals = ");
 		writeStringArray(w, 4, literals);
 		w.write(";\n\n");
@@ -349,7 +349,10 @@ class AXSDataWriter {
 		
 		for (int i = 0, len = tokens.size(); i < len; i++) {
 			indent(w, 8); w.write("new XPathExpression(");
-			writeTokenArray(w, 8, tokens.get(i));
+			w.write(" // \"");
+			w.write(methods.get(i).expression());
+			w.write("\"\n");
+			indent(w, 8); writeTokenArray(w, 8, tokens.get(i));
 			w.write(", QNames, Literals),\n");
 		}
 		indent(w, 4); w.write("};\n\n");

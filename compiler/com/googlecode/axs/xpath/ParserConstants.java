@@ -68,7 +68,7 @@ public interface ParserConstants {
     "\"\\r\"",
     "\"\\n\"",
     "\"(:\"",
-    "\"*)\"",
+    "\":)\"",
     "<token of kind 7>",
     "<INTEGER_LITERAL>",
     "<DQUOT_LITERAL>",
