@@ -116,18 +116,24 @@ IV. SUBSET OF XPATH UNDERSTOOD BY AXS
 AXS handles only a subset of the full XPath specification. Since SAX is a streaming parser,
 AXS only accepts forward path steps, and specifically only the child:: and decendent:: axes.
 Every path step must have an element (no attribute-only steps), and wildcards elements ('*')
-are not permitted as the terminal element of a path.
+are not permitted. Use the decendent:: (i.e. //) axis instead.
 
 Only a few predicates are accepted:
   - the numeric singleton predicate [N]  which selects the element at Context
     Position N (e.g. names/child::name[2] selects the 2nd <name> that is a child of <names>)
-  - attribute value comparisons [@attribute CMP 'literal'] where CMP is either '=' or '!=';
-    the literal can also be another attribute name (e.g. [@attr1 != @attr2])
+  - string value comparisons $A CMP $B where CMP is either '=' or '!=' and $A and $B are
+    either string literals ('value' or "value"; for either form, a doubled delimiter is the
+    escape sequence to write that delimiter, e.g. 'a''b' is the literal "a'b" and likewise
+    "a""b" is 'a"b') or attribute names, either attribute::NAME or @NAME
+  - string match functions "contains(a, b)", "starts-with(a, b)", and "ends-with(a, b)" where
+    A and B are either literals or attribute names
   - numeric comparisons to the position() function (e.g. [position() < 4] selects the first
     three matches)
   - the special function [captureattrs()] which ensures that the attributes of the
     Element to which it is applied will be available when the handler function is called
     (see section V). This predicate is always true.
+  - parenthesized expressions, the "and" and "or" boolean operators, and the function
+    "not(EXPR)"
 
 AXS accepts both the unabbreviated (child::, decendent::, attribute::) naming forms and the
 abbreviated (@? Name) forms.
