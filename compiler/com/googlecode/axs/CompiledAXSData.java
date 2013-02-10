@@ -313,6 +313,7 @@ public class CompiledAXSData implements ParserVisitor {
 			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
 		}
 		
+		requireStackDepth(1);
 		String op = (String) node.jjtGetValue();
 		if ("=".equals(op)) {
 			instrs.push(XPathExpression.INSTR_EQ_STR);
@@ -336,6 +337,7 @@ public class CompiledAXSData implements ParserVisitor {
 		
 		String fnName = (String) node.jjtGetValue();
 		
+		requireStackDepth(1);
 		if ("contains".equals(fnName)) {
 			instrs.push(XPathExpression.INSTR_CONTAINS);
 		} else if ("starts-with".equals(fnName)) {
@@ -363,7 +365,6 @@ public class CompiledAXSData implements ParserVisitor {
 	public Object visit(StringValue node, ShortVector instrs) {
 		String str = (String) node.jjtGetValue();
 
-		requireStackDepth(1);
 		instrs.push(XPathExpression.INSTR_LITERAL);
 		instrs.push(addLiteral(str));
 		return CAPTURE_NONE;
@@ -380,7 +381,6 @@ public class CompiledAXSData implements ParserVisitor {
 		}
 		QName qName = parseQName(name);
 		
-		requireStackDepth(1);
 		instrs.push(XPathExpression.INSTR_ATTRIBUTE);
 		instrs.push(addQName(qName));
 		return CAPTURE_ATTRIBUTES;
