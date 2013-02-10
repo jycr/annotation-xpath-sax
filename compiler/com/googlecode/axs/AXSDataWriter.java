@@ -230,7 +230,7 @@ class AXSDataWriter {
 	// they are package-scope, since they're needed in CompiledAXSData as well
 	// how many token slots a given TOKEN occupies
 	static final int[] TokenLengths = {
-		1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1
+		1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1
 	};
 	
 	// the XPathExpression.* names for each token value
@@ -247,7 +247,7 @@ class AXSDataWriter {
 		"INSTR_AND",
 		"INSTR_OR",
 		"INSTR_TEST_PREDICATE",
-		"INSTR_WILDCARD_ELEMENT",
+		"INSTR_ENDS_WITH",
 		"INSTR_STARTS_WITH",
 		"INSTR_NONCONSECUTIVE_ELEMENT",
 		"INSTR_POSITION",
@@ -257,7 +257,35 @@ class AXSDataWriter {
 		"INSTR_NE",
 		"INSTR_LE",
 		"INSTR_GE",
-		"INSTR_ENDS_WITH"
+	};
+	
+	static final int NONE = 0;
+	static final int STRING = 1;
+	static final int QNAME = 2;
+	static final int INTEGER = 3;
+	static final int TokenArguments[] = {
+		NONE,
+		NONE,
+		QNAME,
+		NONE,
+		QNAME,
+		STRING,
+		NONE,
+		NONE,
+		INTEGER,
+		NONE,
+		NONE,
+		NONE,
+		NONE,
+		NONE,
+		QNAME,
+		NONE,
+		NONE,
+		NONE,
+		NONE,
+		NONE,
+		NONE,
+		NONE
 	};
 	
 	private static void writeTokenArray(Writer w, int indentSpaces, ShortVector tokens) throws IOException {
@@ -322,7 +350,7 @@ class AXSDataWriter {
 		for (int i = 0, len = tokens.size(); i < len; i++) {
 			indent(w, 8); w.write("new XPathExpression(");
 			writeTokenArray(w, 8, tokens.get(i));
-			w.write(", Literals, QNames),\n");
+			w.write(", QNames, Literals),\n");
 		}
 		indent(w, 4); w.write("};\n\n");
 

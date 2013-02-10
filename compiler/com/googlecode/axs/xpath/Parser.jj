@@ -4,7 +4,7 @@
 public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@bgen(jjtree)*/
   protected JJTParserState jjtree = new JJTParserState();
 
-/*@egen*/  public static void main(String args [])  {    System.out.println("Reading from standard input...");    System.out.print("Enter an expression like /root/node1//node3[@attr='foo'] : ");    Parser p = new Parser(System.in);    try    {      SimpleNode n = (SimpleNode) p.Start();      n.dump("");      System.out.println("Thank you.");    }    catch (Exception e)    {      System.out.println("Oops.");      System.out.println(e.getMessage());    }  }}PARSER_END(Parser)SKIP : /* tolerate errant whitespace */{  " "| "\t"| "\r"| "\n"}MORE : /* Comments */{  "(:" : IN_COMMENT}<IN_COMMENT>SPECIAL_TOKEN :{  < COMMENT : "*)" > : DEFAULT}<IN_COMMENT>MORE :{  < ~[] >}TOKEN : /* Literals */{  < INTEGER_LITERAL : ("-")? ([ "0"-"9" ])+ >| < DQUOT_LITERAL : "\"" ( (~["\\"]) | "\"\"" )* "\"" >| < SQUOT_LITERAL : "'" ( (~["'"]) | "''" )* "'" >}TOKEN : /* Operators */{  < EQ : "=" >| < NE : "!=" >| < LT : "<" >| < GT : ">" >| < LE : "<=" >| < GE : ">=" >}Node Start() :{/*@bgen(jjtree) Start */
+/*@egen*/  public static void main(String args [])  {    System.out.println("Reading from standard input...");    System.out.print("Enter an expression like /root/node1//node3[@attr='foo'] : ");    Parser p = new Parser(System.in);    try    {      SimpleNode n = (SimpleNode) p.Start();      n.dump("");      System.out.println("Thank you.");    }    catch (Exception e)    {      System.out.println("Oops.");      System.out.println(e.getMessage());    }  }}PARSER_END(Parser)SKIP : /* tolerate errant whitespace */{  " "| "\t"| "\r"| "\n"}MORE : /* Comments */{  "(:" : IN_COMMENT}<IN_COMMENT>SPECIAL_TOKEN :{  < COMMENT : "*)" > : DEFAULT}<IN_COMMENT>MORE :{  < ~[] >}TOKEN : /* Literals */{  < INTEGER_LITERAL : ("-")? ([ "0"-"9" ])+ >| < DQUOT_LITERAL : "\"" ( (~["\\"]) | "\"\"" )* "\"" >| < SQUOT_LITERAL : "'" ( (~["'"]) | "''" )* "'" >}TOKEN : /* Operators */{  < EQ : "=" >| < NE : "!=" >| < LT : "<" >| < GT : ">" >| < LE : "<=" >| < GE : ">=" >}TOKEN : /* not-really-reserved words: add these to NameValue() as needed */{  < AND : "and" >| < OR : "or" >| < NOT : "not" >| < CONTAINS : "contains" >| < STARTS_WITH : "starts-with" >| < ENDS_WITH : "ends-with" >| < MATCHES : "matches" >| < POSITION : "position" >| < CAPTUREATTRS : "captureattrs" >}/* Names */TOKEN : /* Names, taken from http://www.w3.org/TR/REC-xml/#NT-Name */{  < NAME : <NAME_START_CHAR> ( <NAME_CHAR> )* >| < #NAME_START_CHAR :		":"	| ["A"-"Z"]	| "_"	| ["a"-"z"]	| ["\u00c0"-"\u00d6"]	| ["\u00d8"-"\u00f6"]	| ["\u00f8"-"\u02ff"]	| ["\u0370"-"\u037d"]	| ["\u037f"-"\u1fff"]	| ["\u200c"-"\u200d"]	| ["\u2070"-"\u218f"]	| ["\u2c00"-"\u2fef"]	| ["\u3001"-"\ud7ff"]	| ["\uf900"-"\ufdcf"]	| ["\ufdf0"-"\ufffd"]//	| ["\u10000"-"\uefffF"] // FIXME: can I express this in Java?  >| <  #NAME_CHAR : 		<NAME_START_CHAR>	| "-"	| "."	| ["0"-"9"]	| "\u00b7"	| ["\u0300"-"\u036f"]	| ["\u203f"-"\u2040"]  >}Node Start() :{/*@bgen(jjtree) Start */
   Start jjtn000 = new Start(JJTSTART);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
@@ -117,7 +117,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}{/*@bgen(jjtree) Predicate */
   try {
-/*@egen*/  LOOKAHEAD(3)  "[" IntegerValue() "]"| "[" OrExpression() "]"/*@bgen(jjtree)*/
+/*@egen*/  (    LOOKAHEAD( SingleNumberPredicate() ) SingleNumberPredicate()  | "[" OrExpression() "]"  )/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -137,13 +137,13 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/}void OrExpression()                   :{/*@bgen(jjtree) #OrExpression(> 1) */
+/*@egen*/}void SingleNumberPredicate()       :{}{  "[" < INTEGER_LITERAL > "]"}void OrExpression()                   :{/*@bgen(jjtree) #OrExpression(> 1) */
   OrExpression jjtn000 = new OrExpression(JJTOREXPRESSION);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}{/*@bgen(jjtree) #OrExpression(> 1) */
   try {
-/*@egen*/  AndExpression() ( "or" AndExpression() )*/*@bgen(jjtree)*/
+/*@egen*/  AndExpression() ( < OR > AndExpression() )*/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -169,7 +169,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}{/*@bgen(jjtree) #AndExpression(> 1) */
   try {
-/*@egen*/  BooleanExpression() ( "and" BooleanExpression() )*| "(" OrExpression() ")"/*@bgen(jjtree)*/
+/*@egen*/  BooleanExpression() ( < AND > BooleanExpression() )*/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -189,13 +189,13 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
       jjtree.closeNodeScope(jjtn000, jjtree.nodeArity() > 1);
     }
   }
-/*@egen*/}void BooleanExpression()       :{}{  NumericComparisonExpression()| StringComparisonExpression()| CaptureAttrsFunction()| StringSearchFunction()| NotExpression()}void NotExpression() :{/*@bgen(jjtree) NotExpression */
+/*@egen*/}void BooleanExpression()       :{}{  (  LOOKAHEAD( StringExpression() ( < EQ > | < NE > ) ) StringComparisonExpression()  | "(" OrExpression() ")"   | CaptureAttrsFunction()  | StringSearchFunction()  | NotExpression()  | NumericComparisonExpression()  )}void NotExpression() :{/*@bgen(jjtree) NotExpression */
   NotExpression jjtn000 = new NotExpression(JJTNOTEXPRESSION);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}{/*@bgen(jjtree) NotExpression */
   try {
-/*@egen*/  "not" "(" OrExpression() ")"/*@bgen(jjtree)*/
+/*@egen*/  < NOT > "(" OrExpression() ")"/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -283,7 +283,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
   jjtree.openNodeScope(jjtn000);
 /*@egen*/  Token t;}{/*@bgen(jjtree) StringSearchFunction */
   try {
-/*@egen*/  (    t = "contains"  | t = "starts-with"  | t = "ends-with"//  | t = "matches" // FIXME: adding regexp support will take a bit of effort  )  "(" StringExpression() "," StringExpression() ")"/*@bgen(jjtree)*/
+/*@egen*/  (    t = < CONTAINS >  | t = < STARTS_WITH >  | t = < ENDS_WITH >//  | t = < MATCHES > // FIXME: adding regexp support will take a bit of effort  )  "(" StringExpression() "," StringExpression() ")"/*@bgen(jjtree)*/
   {
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
@@ -348,7 +348,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}{/*@bgen(jjtree) AttributeExpression */
   try {
-/*@egen*/  "attribute::" NameValue()| "@" NameValue()/*@bgen(jjtree)*/
+/*@egen*/  "@" NameValue()| NameValue()/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -374,7 +374,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}{/*@bgen(jjtree) CaptureAttrsFunction */
   try {
-/*@egen*/  "captureattrs" "(" ")"/*@bgen(jjtree)*/
+/*@egen*/  < CAPTUREATTRS > "(" ")"/*@bgen(jjtree)*/
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
@@ -386,45 +386,13 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}{/*@bgen(jjtree) PositionFunction */
   try {
-/*@egen*/  "position" "(" ")"/*@bgen(jjtree)*/
+/*@egen*/  < POSITION > "(" ")"/*@bgen(jjtree)*/
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/}void FunctionExpression() :{/*@bgen(jjtree) FunctionExpression */
-  FunctionExpression jjtn000 = new FunctionExpression(JJTFUNCTIONEXPRESSION);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/  Token t;}{/*@bgen(jjtree) FunctionExpression */
-  try {
-/*@egen*/  t = "position" "(" ")"| t = "captureattrs" "(" ")"| t = "not" "(" OrExpression() ")"/*@bgen(jjtree)*/
-{
-  jjtree.closeNodeScope(jjtn000, true);
-  jjtc000 = false;
-}
-/*@egen*/{  jjtn000.jjtSetValue(t.image);}/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/}
-void NameValue() :{/*@bgen(jjtree) NameValue */
+/*@egen*/}void NameValue() :{/*@bgen(jjtree) NameValue */
   NameValue jjtn000 = new NameValue(JJTNAMEVALUE);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
@@ -435,10 +403,15 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
   }
-/*@egen*/  {    jjtn000.jjtSetValue(t.image);  }/*@bgen(jjtree)*/
+/*@egen*/  {    jjtn000.jjtSetValue(t.image);  }| (    (      t = < AND >    | t = < OR >    | t = < NOT >    | t = < CONTAINS >    | t = < STARTS_WITH >    | t = < ENDS_WITH >    | t = < MATCHES >    | t = < POSITION >    | t = < CAPTUREATTRS >    )/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/    {      jjtn000.jjtSetValue(t.image);    }/*    (       t = < NAME >       {         jjtThis.jjtSetValue(jjtThis.jjtGetValue().toString() + t.image);       }     )**/   )/*@bgen(jjtree)*/
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/}/* Names have the lowest priority when tokenizing */TOKEN : /* Names, taken from http://www.w3.org/TR/REC-xml/#NT-Name */{  < NAME : <NAME_START_CHAR> ( <NAME_CHAR> )* >| < #NAME_START_CHAR :		":"	| ["A"-"Z"]	| "_"	| ["a"-"z"]	| ["\u00c0"-"\u00d6"]	| ["\u00d8"-"\u00f6"]	| ["\u00f8"-"\u02ff"]	| ["\u0370"-"\u037d"]	| ["\u037f"-"\u1fff"]	| ["\u200c"-"\u200d"]	| ["\u2070"-"\u218f"]	| ["\u2c00"-"\u2fef"]	| ["\u3001"-"\ud7ff"]	| ["\uf900"-"\ufdcf"]	| ["\ufdf0"-"\ufffd"]//	| ["\u10000"-"\uefffF"] // FIXME: can I express this in Java?  >| <  #NAME_CHAR : 		<NAME_START_CHAR>	| "-"	| "."	| ["0"-"9"]	| "\u00b7"	| ["\u0300"-"\u036f"]	| ["\u203f"-"\u2040"]  >}
+/*@egen*/}

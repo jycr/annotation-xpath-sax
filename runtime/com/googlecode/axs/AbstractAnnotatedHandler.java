@@ -241,12 +241,6 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 					return false;
 				esp = 0;
 				break;
-			case XPathExpression.INSTR_WILDCARD_ELEMENT:
-				// consume any one tag
-				if (tagp < 0)
-					return false;
-				--tagp;
-				break;
 			case XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT:
 				// consume any number of tags until the QName before the double slash is found
 			{

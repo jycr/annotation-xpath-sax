@@ -36,6 +36,7 @@ import javax.tools.FileObject;
 public class AnnotationProcessor extends AbstractProcessor {
 	// accumulate all the classes we need to generate _AXSData classes for
 	private HashMap<TypeElement, AnnotatedClass> mClasses = new HashMap<TypeElement, AnnotatedClass>();
+	private int mAnnotatedMethods = 0;
 	
 	public AnnotationProcessor() {
 		super();
@@ -69,6 +70,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 				}
 				if (e.getKind() == ElementKind.METHOD) {
 					ac.addMethodAnnotation(e, annotationElement);
+					mAnnotatedMethods += 1;
 				} else if (e.getKind() == ElementKind.CLASS) {
 					ac.addClassAnnotation(annotationElement);
 				} else {
@@ -81,7 +83,10 @@ public class AnnotationProcessor extends AbstractProcessor {
 		if (!env.processingOver())
 			return true;
 		
-		messager.printMessage(Kind.NOTE, "Found " + mClasses.size() + " classes with XPath annotations");
+		messager.printMessage(Kind.NOTE, "Found " + mClasses.size() +
+				(mClasses.size() > 1 ? " classes" : " class") + 
+				" with XPath annotations on " + mAnnotatedMethods +
+				(mAnnotatedMethods == 1 ? " method" : " methods"));
 		
 		// compile the XPath expressions for each class and write
 		// out the _AXSData for it

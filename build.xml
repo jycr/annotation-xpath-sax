@@ -83,7 +83,9 @@
     </target>
         
     <target name="clean" description="clean up">
-        <delete dir="${build}"/>
+        <delete dir="${compiler-build}"/>
+        <delete dir="${runtime-build}"/>
+        <delete dir="${tests-build}"/>
         <delete dir="${dist}"/>
     </target>
 </project>

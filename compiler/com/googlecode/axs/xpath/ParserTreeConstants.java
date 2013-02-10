@@ -21,8 +21,7 @@ public interface ParserTreeConstants
   public int JJTATTRIBUTEEXPRESSION = 15;
   public int JJTCAPTUREATTRSFUNCTION = 16;
   public int JJTPOSITIONFUNCTION = 17;
-  public int JJTFUNCTIONEXPRESSION = 18;
-  public int JJTNAMEVALUE = 19;
+  public int JJTNAMEVALUE = 18;
 
 
   public String[] jjtNodeName = {
@@ -44,8 +43,7 @@ public interface ParserTreeConstants
     "AttributeExpression",
     "CaptureAttrsFunction",
     "PositionFunction",
-    "FunctionExpression",
     "NameValue",
   };
 }
-/* JavaCC - OriginalChecksum=ad6e9128efabd4565f5c6b17007570a1 (do not edit this line) */
+/* JavaCC - OriginalChecksum=357b6cdb4c9794f19c5128c0ee32f340 (do not edit this line) */

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.Vector;
 
 import javax.annotation.processing.Messager;
@@ -25,6 +24,7 @@ import com.googlecode.axs.xpath.NotExpression;
 import com.googlecode.axs.xpath.NumericComparisonExpression;
 import com.googlecode.axs.xpath.OrExpression;
 import com.googlecode.axs.xpath.Parser;
+import com.googlecode.axs.xpath.ParserTreeConstants;
 import com.googlecode.axs.xpath.ParserVisitor;
 import com.googlecode.axs.xpath.PositionFunction;
 import com.googlecode.axs.xpath.Predicate;
@@ -36,7 +36,6 @@ import com.googlecode.axs.xpath.StepExpression;
 import com.googlecode.axs.xpath.StringComparisonExpression;
 import com.googlecode.axs.xpath.StringSearchFunction;
 import com.googlecode.axs.xpath.StringValue;
-import com.googlecode.axs.xpath.Wildcard;
 
 /**
  * This class performs the actual compilation of XPath expressions to generate
@@ -68,7 +67,6 @@ public class CompiledAXSData implements ParserVisitor {
 	private HashMap<String, Vector<Integer>> mTriggerTags = new HashMap<String, Vector<Integer>>();
 	private HashSet<String> mAttributeCaptureTags = new HashSet<String>();
 	private HashSet<String> mPositionCaptureTags = new HashSet<String>();
-	private Stack<Boolean> mPositionCaptureStack = new Stack<Boolean>();
 	
 	public class Method {
 		private String mName;
@@ -99,20 +97,41 @@ public class CompiledAXSData implements ParserVisitor {
 	private int mNrXPathEndMethods = 0;
 	private int mNrXPathStartMethods = 0;
 
+	private void errorMessage(String message) {
+		mMessager.printMessage(Kind.ERROR, message, mClass.classElement());
+	}
+	
 	/**
 	 * Add @p literal to the literals table and return its index
 	 * @param literal
 	 * @return the index of the literal
 	 */
-	private int addLiteral(String literal) {
+	private short addLiteral(String literal) {
 		Integer index = mLiteralIndices.get(literal);
 		
 		if (index != null)
-			return index;
+			return index.shortValue();
 		
 		mLiterals.add(literal);
 		mLiteralIndices.put(literal, mLiterals.size() - 1);
-		return mLiterals.size() - 1;
+		return (short)(mLiterals.size() - 1);
+	}
+	
+	private QName parseQName(String name) {
+		int colonPosition = name.indexOf(':');
+		
+		if (colonPosition > 0) {
+			String prefix = name.substring(0, colonPosition);
+			String localName = name.substring(colonPosition + 1);
+			
+			String uri = mClass.prefixMap().get(prefix);
+			
+			if (uri == null) {
+				errorMessage("No Namespace URI mapping specified for prefix \"" + prefix + "\"");
+			}
+			return new QName(uri, localName, prefix);
+		}
+		return new QName(name);
 	}
 	
 	/**
@@ -120,52 +139,41 @@ public class CompiledAXSData implements ParserVisitor {
 	 * @param qName
 	 * @return the index of the QName
 	 */
-	private int addQName(QName qName) {
+	private short addQName(QName qName) {
 		Integer index = mQNameIndices.get(qName);
 		
 		if (index != null)
-			return index;
+			return index.shortValue();
 		
 		mQNames.add(qName);
 		mQNameIndices.put(qName, mQNames.size() - 1);
-		return mQNames.size() - 1;
+		return (short)(mQNames.size() - 1);
 	}
 	
 	@Override
 	public Object visit(SimpleNode node, ShortVector data) {
-		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
-				" node in the parse tree!");
+		errorMessage("Got an unhandled #" + node.getClass().getSimpleName() + " node in the parse tree!");
 		return null;
 	}
 
 	@Override
 	public Object visit(Start node, ShortVector data) {
-		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
-				" node in the parse tree!");
+		errorMessage("Got an unhandled #" + node.getClass().getSimpleName() + " node in the parse tree!");
 		return null;
 	}
 
 	@Override
 	public Object visit(Slash node, ShortVector data) {
-		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
-				" node in the parse tree!");
+		errorMessage("Got an unhandled #" + node.getClass().getSimpleName() + " node in the parse tree!");
 		return null;
 	}
 
 	@Override
 	public Object visit(SlashSlash node, ShortVector data) {
-		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
-				" node in the parse tree!");
+		errorMessage("Got an unhandled #" + node.getClass().getSimpleName() + " node in the parse tree!");
 		return null;
 	}
 
-	@Override
-	public Object visit(Wildcard node, ShortVector data) {
-		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
-				" node in the parse tree!");
-		return null;
-	}
-	
 	// Predicate nodes and all the expression types contained under them
 	// return a mask of capture type flags as an Integer; StepExpression
 	// nodes return the union of all the captures their Predicates require
@@ -183,7 +191,7 @@ public class CompiledAXSData implements ParserVisitor {
 		int captures = CAPTURE_NONE;
 		
 		for (int i = 1, children = node.jjtGetNumChildren(); i < children; i++) {
-			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
+//			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
 		}
 		return captures;
 	}
@@ -260,17 +268,12 @@ public class CompiledAXSData implements ParserVisitor {
 		return null;
 	}
 
-	@Override
-	public Object visit(FunctionExpression node, ShortVector instrs) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	/**
+	 * Returns the raw Name value
+	 */
 	@Override
 	public Object visit(NameValue node, ShortVector instrs) {
-		mMessager.printMessage(Kind.ERROR, "Got an unhandled #" + node.getClass().getSimpleName() +
-				" node in the parse tree!");
-		return null;
+		return node.jjtGetValue();
 	}
 
 	/**
@@ -283,7 +286,11 @@ public class CompiledAXSData implements ParserVisitor {
 		// we compile steps from last to first as matches the tag stack
 		int totalSteps = expressionNode.jjtGetNumChildren();
 		boolean capturePosition = false;
-		String lastNodeName = "";
+		
+		if (totalSteps == 0) {
+			errorMessage("An XPath expression must have at least one element");
+			return "";
+		}
 		
 		for (int child = totalSteps - 1; child >= 0; child -= 2) {
 			// compile any Predicates for this step
@@ -291,7 +298,7 @@ public class CompiledAXSData implements ParserVisitor {
 			int captureFlags = (Integer) axisStepNode.jjtAccept(this, instrs);
 
 			// then compile the step itself
-			// the last steps is always INSTR_ELEMENT
+			// the last step is always INSTR_ELEMENT
 			short tagInstr = XPathExpression.INSTR_ELEMENT;
 			
 			if (child != totalSteps - 1) {
@@ -304,12 +311,58 @@ public class CompiledAXSData implements ParserVisitor {
 				}
 			}
 			
+			// remove axis prefixes from the Name for the step
+			String name = (String) axisStepNode.jjtGetChild(0).jjtAccept(this, instrs);
+			if (name.startsWith("child::")) {
+				name = name.substring(7);
+			} else if (name.startsWith("decendent::")) {
+				name = name.substring(11);
+				
+				// replace the separator _before_ this step with a SlashSlash
+				if (child > 0) {
+					expressionNode.jjtAddChild(new SlashSlash(ParserTreeConstants.JJTSLASHSLASH), child - 1);
+				}
+			} else if (name.startsWith("attribute::") || name.startsWith("@")) {
+				errorMessage("Cannot use an attribute name as an Axis Step");
+			}
+			
+			// add the step to the instructions vector
+			QName qName = parseQName(name);
+			
+			instrs.push(tagInstr);
+			instrs.push(addQName(qName));
+			
+			// handle captures
 			if (capturePosition) {
 				// the node below us needs to know its position(), i.e.
 				// we're now at the "b" of a/b/c[position() > 3]
+				mPositionCaptureTags.add(qName.getLocalPart());
+				capturePosition = false;
+			}
+			
+			if ((captureFlags & CAPTURE_ATTRIBUTES) != 0) {
+				mAttributeCaptureTags.add(qName.getLocalPart());
+			}
+			
+			if ((captureFlags & CAPTURE_POSITIONS) != 0) {
+				if (child < 2) {
+					// this is the topmost node in the pattern: we can't capture positions for it
+					errorMessage("Cannot use position() predicates for the topmost node in a path");
+				}
+				capturePosition = true;
 			}
 		}
-		return null;
+		
+		// if the pattern starts with a Slash, mark it absolute
+		if (expressionNode.jjtGetChild(0) instanceof Slash) {
+			instrs.push(XPathExpression.INSTR_ROOT);
+		}
+		
+		// return the local part of the innermost node in the pattern
+		String lastNodeName = (String) expressionNode.jjtGetChild(totalSteps - 1)
+														.jjtGetChild(0)
+														.jjtAccept(this, instrs);
+		return parseQName(lastNodeName).getLocalPart();
 	}
 	
 	private String compileExpression(Node expressionNode, ShortVector instrVector) {
@@ -341,6 +394,7 @@ public class CompiledAXSData implements ParserVisitor {
 				ShortVector instructions = new ShortVector();
 				String trigger = compileExpression(rootNode.jjtGetChild(child), instructions);
 				
+				// System.out.println("parsed \"" + xpathExpression + "\" to " + instructions);
 				// store the compiled method
 				mTokens.add(instructions);
 				mMethods.add(new Method(methodName, xpathExpression, mTokens.size() - 1));
@@ -348,6 +402,7 @@ public class CompiledAXSData implements ParserVisitor {
 			}
 		} catch (Exception e) {
 			mMessager.printMessage(Kind.ERROR, "Error parsing XPath expression \"" + xpathExpression + "\": " + e.toString());
+			e.printStackTrace();
 		}
 	}
 	

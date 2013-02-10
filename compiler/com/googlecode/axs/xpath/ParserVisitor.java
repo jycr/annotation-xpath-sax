@@ -21,7 +21,6 @@ public interface ParserVisitor
   public Object visit(AttributeExpression node, com.googlecode.axs.ShortVector data);
   public Object visit(CaptureAttrsFunction node, com.googlecode.axs.ShortVector data);
   public Object visit(PositionFunction node, com.googlecode.axs.ShortVector data);
-  public Object visit(FunctionExpression node, com.googlecode.axs.ShortVector data);
   public Object visit(NameValue node, com.googlecode.axs.ShortVector data);
 }
-/* JavaCC - OriginalChecksum=ad9471e898f877d12682e7a4d08b2929 (do not edit this line) */
+/* JavaCC - OriginalChecksum=94de1446424ed0633790099ee9c33a91 (do not edit this line) */

@@ -45,4 +45,18 @@ public class ShortVector {
 	public short[] result() {
 		return Arrays.copyOf(buffer, length);
 	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer("ShortVector(");
+		sb.append(length);
+		sb.append(", [");
+		for (int i = 0; i < length; i++) {
+			sb.append(buffer[i]);
+			if (i != length-1)
+				sb.append(", ");
+		}
+		sb.append("])");
+		
+		return sb.toString();
+	}
 }

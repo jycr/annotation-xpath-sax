@@ -31,11 +31,29 @@ public interface ParserConstants {
   /** RegularExpression Id. */
   int GE = 16;
   /** RegularExpression Id. */
-  int NAME = 35;
+  int AND = 17;
   /** RegularExpression Id. */
-  int NAME_START_CHAR = 36;
+  int OR = 18;
   /** RegularExpression Id. */
-  int NAME_CHAR = 37;
+  int NOT = 19;
+  /** RegularExpression Id. */
+  int CONTAINS = 20;
+  /** RegularExpression Id. */
+  int STARTS_WITH = 21;
+  /** RegularExpression Id. */
+  int ENDS_WITH = 22;
+  /** RegularExpression Id. */
+  int MATCHES = 23;
+  /** RegularExpression Id. */
+  int POSITION = 24;
+  /** RegularExpression Id. */
+  int CAPTUREATTRS = 25;
+  /** RegularExpression Id. */
+  int NAME = 26;
+  /** RegularExpression Id. */
+  int NAME_START_CHAR = 27;
+  /** RegularExpression Id. */
+  int NAME_CHAR = 28;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -61,27 +79,27 @@ public interface ParserConstants {
     "\">\"",
     "\"<=\"",
     "\">=\"",
+    "\"and\"",
+    "\"or\"",
+    "\"not\"",
+    "\"contains\"",
+    "\"starts-with\"",
+    "\"ends-with\"",
+    "\"matches\"",
+    "\"position\"",
+    "\"captureattrs\"",
+    "<NAME>",
+    "<NAME_START_CHAR>",
+    "<NAME_CHAR>",
     "\"|\"",
     "\"/\"",
     "\"//\"",
     "\"[\"",
     "\"]\"",
-    "\"or\"",
-    "\"and\"",
     "\"(\"",
     "\")\"",
-    "\"not\"",
-    "\"contains\"",
-    "\"starts-with\"",
-    "\"ends-with\"",
     "\",\"",
-    "\"attribute::\"",
     "\"@\"",
-    "\"captureattrs\"",
-    "\"position\"",
-    "<NAME>",
-    "<NAME_START_CHAR>",
-    "<NAME_CHAR>",
   };
 
 }

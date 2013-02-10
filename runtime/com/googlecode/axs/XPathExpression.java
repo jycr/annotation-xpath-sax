@@ -21,7 +21,7 @@ public final class XPathExpression {
 	public static final short INSTR_AND = 9;
 	public static final short INSTR_OR = 10;
 	public static final short INSTR_TEST_PREDICATE = 11;
-	public static final short INSTR_WILDCARD_ELEMENT = 12;
+	public static final short INSTR_ENDS_WITH = 12;
 	public static final short INSTR_STARTS_WITH = 13;
 	public static final short INSTR_NONCONSECUTIVE_ELEMENT = 14; // the following value in Tokens[] is the index into QNames
 	public static final short INSTR_POSITION = 15; // the following value in Tokens[] is the index into QNames
@@ -31,7 +31,6 @@ public final class XPathExpression {
 	public static final short INSTR_NE = 19;
 	public static final short INSTR_LE = 20;
 	public static final short INSTR_GE = 21;
-	public static final short INSTR_ENDS_WITH = 22;
 
 	private short[] mTokens = null;
 	private QName[] mQNames = null;
