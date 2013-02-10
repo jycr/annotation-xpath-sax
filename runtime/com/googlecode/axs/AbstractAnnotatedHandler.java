@@ -190,6 +190,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				} else {
 					evaluationStack[esp++] = 0;
 				}
+				ssp = 0;
 				break;
 			}
 			case XPathExpression.INSTR_ATTRIBUTE:
@@ -257,6 +258,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				} else {
 					evaluationStack[esp++] = 0;
 				}
+				ssp = 0;
 				break;
 			}
 			case XPathExpression.INSTR_STARTS_WITH:
@@ -266,6 +268,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				} else {
 					evaluationStack[esp++] = 0;
 				}
+				ssp = 0;
 				break;
 			}
 			case XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT:
