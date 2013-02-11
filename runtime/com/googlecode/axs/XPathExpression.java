@@ -32,18 +32,18 @@ public final class XPathExpression {
 	public static final short INSTR_LE = 20;
 	public static final short INSTR_GE = 21;
 
-	private short[] mTokens = null;
+	private short[] mInstructions = null;
 	private QName[] mQNames = null;
 	private String[] mLiterals = null;
 	
-	public XPathExpression(short[] tokens, QName[] qNames, String[] literals) {
-		mTokens = tokens;
+	public XPathExpression(short[] instrs, QName[] qNames, String[] literals) {
+		mInstructions = instrs;
 		mQNames = qNames;
 		mLiterals = literals;
 	}
 	
-	public short[] tokens() {
-		return mTokens;
+	public short[] instructions() {
+		return mInstructions;
 	}
 	
 	public QName[] qNames() {

@@ -51,7 +51,7 @@ class AXSDataWriter {
 		writeTriggerTags(w, axsData.triggers());
 		writeSet(w, "AttributeCaptureTags", "getAttributeCaptureTags", axsData.attributeCaptureTags());
 		writeSet(w, "PositionCaptureTags", "getPositionCaptureTags", axsData.positionCaptureTags());
-		writeExpressions(w, methods, axsData.tokens(), axsData.literals(), axsData.qNames());
+		writeExpressions(w, methods, axsData.instructions(), axsData.literals(), axsData.qNames());
 		writeFooter(w);
 	}
 	
@@ -228,13 +228,13 @@ class AXSDataWriter {
 	
 	// these two arrays MUST match the encoding used in XPathExpression
 	// they are package-scope, since they're needed in CompiledAXSData as well
-	// how many token slots a given TOKEN occupies
-	static final int[] TokenLengths = {
+	// how many instruction slots a given instruction occupies
+	static final int[] InstructionLengths = {
 		1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1
 	};
 	
 	// the XPathExpression.* names for each token value
-	static final String[] TokenNames = {
+	static final String[] InstructionNames = {
 		"(zero)",
 		"INSTR_ROOT",
 		"INSTR_ELEMENT",
@@ -263,7 +263,7 @@ class AXSDataWriter {
 	static final int STRING = 1;
 	static final int QNAME = 2;
 	static final int INTEGER = 3;
-	static final int TokenArguments[] = {
+	static final int InstructionArguments[] = {
 		NONE,
 		NONE,
 		QNAME,
@@ -288,19 +288,19 @@ class AXSDataWriter {
 		NONE
 	};
 	
-	private static void writeTokenArray(Writer w, int indentSpaces, ShortVector tokens) throws IOException {
+	private static void writeInstructionArray(Writer w, int indentSpaces, ShortVector instrs) throws IOException {
 		final int in = indentSpaces;
 		w.write("new short[] {\n");
 
-		for (int i = 0, len = tokens.size(); i < len; i++) {
-			short token = tokens.get(i);
+		for (int i = 0, len = instrs.size(); i < len; i++) {
+			short instr = instrs.get(i);
 			
-			indent(w, in+4); w.write("XPathExpression."); w.write(TokenNames[token]); w.write(",");
+			indent(w, in+4); w.write("XPathExpression."); w.write(InstructionNames[instr]); w.write(",");
 			
-			if (TokenLengths[token] == 2) {
+			if (InstructionLengths[instr] == 2) {
 				i++;
 				w.write(" ");
-				w.write(String.valueOf(tokens.get(i)));
+				w.write(String.valueOf(instrs.get(i)));
 				w.write(",");
 			}
 			w.write("\n");
@@ -338,7 +338,7 @@ class AXSDataWriter {
 		indent(w, in); w.write("}");
 	}
 
-	private static void writeExpressions(Writer w, Vector<CompiledAXSData.Method> methods, Vector<ShortVector> tokens, Vector<String> literals, Vector<QName> qNames) throws IOException {
+	private static void writeExpressions(Writer w, Vector<CompiledAXSData.Method> methods, Vector<ShortVector> instructions, Vector<String> literals, Vector<QName> qNames) throws IOException {
 		indent(w, 4); w.write("private static String[] Literals = ");
 		writeStringArray(w, 4, literals);
 		w.write(";\n\n");
@@ -347,12 +347,12 @@ class AXSDataWriter {
 		w.write(";\n\n");
 		indent(w, 4); w.write("private static XPathExpression[] Expressions = new XPathExpression[] {\n");
 		
-		for (int i = 0, len = tokens.size(); i < len; i++) {
+		for (int i = 0, len = instructions.size(); i < len; i++) {
 			indent(w, 8); w.write("new XPathExpression(");
 			w.write(" // \"");
 			w.write(methods.get(i).expression());
 			w.write("\"\n");
-			indent(w, 8); writeTokenArray(w, 8, tokens.get(i));
+			indent(w, 8); writeInstructionArray(w, 8, instructions.get(i));
 			w.write(", QNames, Literals),\n");
 		}
 		indent(w, 4); w.write("};\n\n");

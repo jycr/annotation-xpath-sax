@@ -146,12 +146,12 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 	 */
 	private boolean testExpression(XPathExpression xpr)
 	{
-		final short[] tokens = xpr.tokens();
+		final short[] instructions = xpr.instructions();
 		final String[] literals = xpr.literals();
 		final QName[] qNames = xpr.qNames();
 		final int[] evaluationStack = mPredicateStack;
 		int esp = 0;
-		int ip = 0, maxIp = tokens.length;
+		int ip = 0, maxIp = instructions.length;
 		int tagp = mTagStack.size() - 1; // the current tag
 		String[] stringStack = mPredicateStringStack;
 		int ssp = 0;
@@ -164,9 +164,9 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 		// form, where we test from the top of the tag stack back up towards the root.
 		
 		while (ip < maxIp) {
-			final int token = tokens[ip];
+			final int instr = instructions[ip];
 			
-			switch (token) {
+			switch (instr) {
 			case XPathExpression.INSTR_ROOT:
 				// test if we've hit the document root
 				if (TRACE_EXECUTION)
@@ -181,7 +181,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				break;
 			case XPathExpression.INSTR_ELEMENT:
 			{
-				final QName wantedTag = qNames[tokens[++ip]];
+				final QName wantedTag = qNames[instructions[++ip]];
 				
 				if (TRACE_EXECUTION)
 					System.out.print("  ELEMENT(" + wantedTag + "): ");
@@ -223,7 +223,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 			}
 			case XPathExpression.INSTR_ATTRIBUTE:
 			{
-				final QName attrName = qNames[tokens[++ip]];
+				final QName attrName = qNames[instructions[++ip]];
 
 				if (TRACE_EXECUTION)
 					System.out.print("  ATTRIBUTE(" + attrName + "): ");
@@ -253,7 +253,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 			}
 			case XPathExpression.INSTR_LITERAL:
 				// push a literal onto the predicate string stack
-				stringStack[ssp++] = literals[tokens[++ip]];
+				stringStack[ssp++] = literals[instructions[++ip]];
 				
 				if (TRACE_EXECUTION)
 					System.out.println("  LITERAL(\"" + stringStack[ssp-1] + "\")");
@@ -284,7 +284,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				break;
 			case XPathExpression.INSTR_ILITERAL:
 				// push a numeric value onto the evaluation stack
-				evaluationStack[esp++] = tokens[++ip];
+				evaluationStack[esp++] = instructions[++ip];
 				
 				if (TRACE_EXECUTION)
 					System.out.println("  ILITERAL(" + evaluationStack[esp-1] + ")");
@@ -357,7 +357,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 			case XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT:
 				// consume any number of tags until the QName before the double slash is found
 			{
-				final QName targetTag = qNames[tokens[++ip]];
+				final QName targetTag = qNames[instructions[++ip]];
 				
 				if (TRACE_EXECUTION)
 					System.out.print("  NONCONSECUTIVE_ELEMENT(" + targetTag + "): ");
@@ -468,7 +468,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				break;
 			}
 			default:
-				throw new XPathExecutionError("unexpected token value " + token);
+				throw new XPathExecutionError("unexpected instruction value " + instr);
 			}
 			
 			ip++;

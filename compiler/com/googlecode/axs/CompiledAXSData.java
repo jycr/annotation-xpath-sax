@@ -51,7 +51,7 @@ public class CompiledAXSData implements ParserVisitor {
 		mClass = ac;
 		mMessager = messager;
 		
-		mTokens = new Vector<ShortVector>();
+		mInstructions = new Vector<ShortVector>();
 		mLiterals = new Vector<String>();
 		mQNames = new Vector<QName>();
 		mLiteralIndices = new HashMap<String, Integer>();
@@ -59,7 +59,7 @@ public class CompiledAXSData implements ParserVisitor {
 	}
 
 	private int mMaxPredicateStackDepth = 0, mCurrentPredicateStackDepth = 0;
-	private Vector<ShortVector> mTokens = null;
+	private Vector<ShortVector> mInstructions = null;
 	private Vector<String> mLiterals = null;
 	private Vector<QName> mQNames = null;
 	private HashMap<String, Integer> mLiteralIndices = null;
@@ -537,9 +537,9 @@ public class CompiledAXSData implements ParserVisitor {
 				
 				// System.out.println("parsed \"" + xpathExpression + "\" to " + instructions);
 				// store the compiled method
-				mTokens.add(instructions);
-				mMethods.add(new Method(methodName, xpathExpression, mTokens.size() - 1));
-				addTrigger(trigger, mTokens.size() - 1);
+				mInstructions.add(instructions);
+				mMethods.add(new Method(methodName, xpathExpression, mInstructions.size() - 1));
+				addTrigger(trigger, mInstructions.size() - 1);
 			}
 		} catch (Exception e) {
 			mMessager.printMessage(Kind.ERROR, "Error parsing XPath expression \"" + xpathExpression + "\": " + e.toString());
@@ -591,8 +591,8 @@ public class CompiledAXSData implements ParserVisitor {
 		mNrXPathStartMethods = compileOneSet(mClass.xPathStartMethods());
 	}
 	
-	public Vector<ShortVector> tokens() {
-		return mTokens;
+	public Vector<ShortVector> instructions() {
+		return mInstructions;
 	}
 	
 	public Vector<String> literals() {
