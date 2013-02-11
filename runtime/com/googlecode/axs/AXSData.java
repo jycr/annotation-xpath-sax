@@ -14,6 +14,13 @@ import org.xml.sax.Attributes;
  */
 public interface AXSData {
 	/**
+	 * Report what version of the AXSData format this is.
+	 * @return the version as 0xAAAABBBB where AAAA is the major version
+	 * and BBBB is the minor version
+	 */
+	public abstract int getAXSDataVersion();
+	
+	/**
 	 * Call an {@literal @}XPathStart() function.
 	 * @param handler the Handler to make the call on
 	 * @param xpId the index of the XPath expression in the expression data

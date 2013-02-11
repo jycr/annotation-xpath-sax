@@ -22,7 +22,7 @@ import javax.xml.namespace.QName;
 class AXSDataWriter {
 	private AXSDataWriter() {
 	}
-
+	
 	/**
 	 * Write out the compiled _AXSData as Java source code to the given writer
 	 * @param w the writer to which the code should be written.
@@ -45,6 +45,7 @@ class AXSDataWriter {
 		writeCallFunction(w, axsData.className(), "callXPathText", "String", methods.subList(0, nrTexts));
 		writeCallFunction(w, axsData.className(), "callXPathEnd", null, methods.subList(nrTexts, nrTexts+nrEnds));
 		writeCallFunction(w, axsData.className(), "callXPathStart", "Attributes", methods.subList(nrTexts+nrEnds, nrTexts+nrEnds+nrStarts));
+		writeInt(w, "getAXSDataVersion", AbstractAnnotatedHandler.AXSDATA_VERSION);
 		writeInt(w, "getNumberOfCapturingExpressions", nrTexts);
 		writeInt(w, "getNumberOfEndExpressions", nrEnds);
 		writeInt(w, "getMaximumPredicateStackDepth", axsData.maximumPredicateStackDepth());
