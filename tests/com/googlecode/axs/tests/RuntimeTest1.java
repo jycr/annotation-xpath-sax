@@ -13,8 +13,10 @@ import org.xml.sax.SAXException;
 import com.googlecode.axs.AbstractAnnotatedHandler;
 import com.googlecode.axs.XPath;
 import com.googlecode.axs.XPathEnd;
+import com.googlecode.axs.XPathNamespaces;
 import com.googlecode.axs.XPathStart;
 
+@XPathNamespaces({ "ns1=http://test.values/tests" })
 public class RuntimeTest1 extends AbstractAnnotatedHandler {
 	private int mNrBElements = 0;
 	private int mNrDElements = 0;
@@ -36,6 +38,8 @@ public class RuntimeTest1 extends AbstractAnnotatedHandler {
 	public void dElementStart(Attributes attrs) {
 		if (!"true".equals(attrs.getValue("attr3"))) {
 			System.out.println("[FAIL] <d> element does not have attr3=\"true\"");
+		} else {
+			System.out.println("[OK] <d> element has attr3=\"true\"");
 		}
 		mNrDElements++;
 	}
@@ -58,7 +62,7 @@ public class RuntimeTest1 extends AbstractAnnotatedHandler {
 		}
 	}
 	
-	@XPath("//test/a")
+	@XPath("//tests/test[position() < 4]/a")
 	public void testAElement(String text) {
 		if (!text.startsWith("This is some testing text ")) {
 			System.out.println("[FAIL] Looked for text, got \"" + text + "\"");
@@ -70,12 +74,12 @@ public class RuntimeTest1 extends AbstractAnnotatedHandler {
 		checkText(text, 2);
 	}
 
-	@XPath("//a[attribute::value2 = 'value3']")
+	@XPath("//a[attribute::attr2 = 'value3' and not(@ns1:attrNotFound = 'foo''bar')]")
 	public void testAElementAttrs3(String text) {
 		checkText(text, 3);
 	}
 
-	@XPath("/tests/test[2]/a[starts-with(@attr1,'value') and attribute::value2 = 'value2'][3]")
+	@XPath("/tests/test[2]/a[starts-with(@attr1,'value') and attribute::attr2 = 'value2' and position() = 3]")
 	public void testAElementAttrs4(String text) {
 		checkText(text, 4);
 	}

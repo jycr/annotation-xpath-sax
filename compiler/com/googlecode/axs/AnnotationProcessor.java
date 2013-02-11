@@ -30,7 +30,7 @@ import javax.tools.FileObject;
 	"com.googlecode.axs.XPath",
 	"com.googlecode.axs.XPathStart",
 	"com.googlecode.axs.XPathEnd",
-	"com.googlecode.axs.XPathNamespace"
+	"com.googlecode.axs.XPathNamespaces"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class AnnotationProcessor extends AbstractProcessor {

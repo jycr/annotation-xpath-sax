@@ -59,7 +59,7 @@ class AnnotatedClass {
 	}
 	
 	public void addClassAnnotation(TypeElement annotationElement) {
-		final Name aType = annotationElement.getSimpleName();
+		final String aType = annotationElement.getSimpleName().toString();
 		
 		if (!"XPathNamespaces".equals(aType)) {
 			mMessager.printMessage(Kind.ERROR, "Cannot apply annotation " + aType, mClassElement);
@@ -77,6 +77,7 @@ class AnnotatedClass {
 			}
 			String prefix = p.substring(0, eqPos);
 			String uri = p.substring(eqPos+1);
+			mMessager.printMessage(Kind.NOTE, "Mapping namespace " + prefix + " to " + uri + " for class " + className());
 			mPrefixMap.put(prefix, uri);
 		}
 	}

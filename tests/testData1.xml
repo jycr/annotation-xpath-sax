@@ -7,11 +7,11 @@
         <a attr1="value1" attr2="value2">This is some <b>testing text </b>2!</a>
         <a attr1="value1" attr2="value3">This is some <b>testing text </b>3!</a>
         <a attr1="value1" attr2="value2">This is some <b>testing text </b>4!</a>
-        </test>
+    </test>
     <test>
-        <a attr1="value4andvalue5" attr2="value3">This is some <b>testing text </b>5!</a>
+        <a attr1="value4andvalue5" attr2="value4">This is some <b>testing text </b>5!</a>
         <a attr1="value4andvalue5" attr2="value4">This is some <b>testing text </b>6!</a>
-        </test>
+    </test>
     <test>
         <a>
             <c>This text should not be included.

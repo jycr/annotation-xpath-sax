@@ -246,31 +246,38 @@ public class CompiledAXSData implements ParserVisitor {
 
 	@Override
 	public Object visit(OrExpression node, ShortVector instrs) {
-		assert(node.jjtGetNumChildren() == 0);
+		int children = node.jjtGetNumChildren();
 		int captures = CAPTURE_NONE;
 		
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < children; i++) {
 			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
 		}
-		instrs.push(XPathExpression.INSTR_OR);
+		
+		for (int i = 1; i < children; i++) {
+			instrs.push(XPathExpression.INSTR_OR);
+		}
 		return captures;
 	}
 
 	@Override
 	public Object visit(AndExpression node, ShortVector instrs) {
-		assert(node.jjtGetNumChildren() == 0);
+		int children = node.jjtGetNumChildren();
 		int captures = CAPTURE_NONE;
 		
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < children; i++) {
 			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
 		}
-		instrs.push(XPathExpression.INSTR_AND);
+		
+		for (int i = 1; i < children; i++) {
+			instrs.push(XPathExpression.INSTR_AND);
+		}
 		return captures;
 	}
 
 	@Override
 	public Object visit(NotExpression node, ShortVector instrs) {
-		assert(node.jjtGetNumChildren() == 1);
+		if (node.jjtGetNumChildren() != 1)
+			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " decendents of a not() expression");
 		int captures = (Integer) node.jjtGetChild(0).jjtAccept(this, instrs);
 		instrs.push(XPathExpression.INSTR_NOT);
 		return captures;
@@ -278,7 +285,8 @@ public class CompiledAXSData implements ParserVisitor {
 
 	@Override
 	public Object visit(NumericComparisonExpression node, ShortVector instrs) {
-		assert(node.jjtGetNumChildren() == 2);
+		if (node.jjtGetNumChildren() != 2)
+			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " decendents of a numeric comparison expression");
 		int captures = CAPTURE_NONE;
 		
 		for (int i = 0; i < 2; i++) {
@@ -306,7 +314,8 @@ public class CompiledAXSData implements ParserVisitor {
 
 	@Override
 	public Object visit(StringComparisonExpression node, ShortVector instrs) {
-		assert(node.jjtGetNumChildren() == 2);
+		if (node.jjtGetNumChildren() != 2)
+			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " decendents of a string comparison expression");
 		int captures = CAPTURE_NONE;
 		
 		for (int i = 0; i < 2; i++) {
@@ -328,7 +337,8 @@ public class CompiledAXSData implements ParserVisitor {
 
 	@Override
 	public Object visit(StringSearchFunction node, ShortVector instrs) {
-		assert(node.jjtGetNumChildren() == 2);
+		if (node.jjtGetNumChildren() != 2)
+			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " decendents of a string comparison function expression");
 		int captures = CAPTURE_NONE;
 		
 		for (int i = 0; i < 2; i++) {
@@ -364,6 +374,12 @@ public class CompiledAXSData implements ParserVisitor {
 	@Override
 	public Object visit(StringValue node, ShortVector instrs) {
 		String str = (String) node.jjtGetValue();
+		
+		// the stored value includes the start and end quotes: strip them
+		// and unescape any quotation marks in the literal
+		char quote = str.charAt(0);
+		str = str.substring(1, str.length()-1);
+		str = str.replace(new String(new char[] { quote,  quote }), new String(new char[] { quote }));
 
 		instrs.push(XPathExpression.INSTR_LITERAL);
 		instrs.push(addLiteral(str));
