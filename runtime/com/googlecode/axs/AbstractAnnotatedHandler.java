@@ -580,20 +580,21 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 	 */
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
-		if (TRACE_EXECUTION)
-			System.out.println("startElement: <" + qName + ">");
 		// push this tag onto the stack
 		final QName qn = makeQName(uri, localName, qName);
 		mTagStack.push(qn);
 		
+		if (TRACE_EXECUTION)
+			System.out.println("startElement: <" + qn + ">");
+
 		String normalizedLocalName = qn.getLocalPart();
 		
 		// test whether to perform attribute capture
 		if (mCaptureAttributes) {
 			if (mAttributeCaptureTags.contains(normalizedLocalName)) {
-				if (TRACE_EXECUTION)
-					System.out.println("captureAttributes");
 				captureAttributes(attrs);
+				if (TRACE_EXECUTION)
+					System.out.println("captureAttributes => " + mAttributesStack.peek());
 			} else {
 				mAttributesStack.push(null);
 			}
@@ -603,7 +604,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 		if (mCapturePositions) {
 			if (mPositionCaptureTags.contains(normalizedLocalName)) {
 				if (TRACE_EXECUTION)
-					System.out.println("capturePosition");
+					System.out.println("capturePosition => " + mPositionCaptureStack.peek());
 				// update the position marker in the parent tag's level in the stack
 				capturePosition(qn);
 			}
@@ -675,8 +676,6 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (TRACE_EXECUTION)
-			System.out.println("endElement: <" + qName + ">");
 		// if we've completed a capture, close it out
 		String text = null;
 		final StringBuilder sb = mTextCaptureStack.pop();
@@ -685,6 +684,11 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 			text = sb.toString();
 			mNrActiveTextCaptures--;
 			mCachedStringBuilder = sb;
+		}
+
+		if (TRACE_EXECUTION) {
+			QName qn = makeQName(uri, localName, qName);
+			System.out.println("endElement: <" + qn + ">");
 		}
 
 		// test whether we have any expressions to fire

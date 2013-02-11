@@ -35,6 +35,8 @@ class AnnotatedClass {
 	public AnnotatedClass(Messager messager, TypeElement clazz) {
 		mMessager = messager;
 		mClassElement = clazz;
+		
+		mPrefixMap.put("", null);
 	}
 
 	public void addMethodAnnotation(Element methodElement, TypeElement annotationElement) {

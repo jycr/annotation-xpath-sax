@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body xmlns="http://test.values/ns0" xmlns:ns1="http://test.values/ns1" xmlns:ns2="http://test.values/ns2">
+    <value label="1"/>
+    <value label="2"/>
+    <value label="3"/>
+    <value label="4"/>
+    
+    <ns1:map>
+        <ns2:key value="abbb"><value>Value 10</value></ns2:key>
+        <ns2:key value="bbbb"><value>Value 11</value></ns2:key>
+    </ns1:map>
+</body>

@@ -118,7 +118,7 @@ public class CompiledAXSData implements ParserVisitor {
 		return (short)(mLiterals.size() - 1);
 	}
 	
-	private QName parseQName(String name) {
+	private QName parseQName(String name, boolean isAttribute) {
 		int colonPosition = name.indexOf(':');
 		
 		if (colonPosition > 0) {
@@ -132,7 +132,8 @@ public class CompiledAXSData implements ParserVisitor {
 			}
 			return new QName(uri, localName, prefix);
 		}
-		return new QName(name);
+		
+		return new QName(isAttribute ? null : mClass.prefixMap().get(""), name);
 	}
 	
 	/**
@@ -395,7 +396,7 @@ public class CompiledAXSData implements ParserVisitor {
 		} else if (name.startsWith("attribute::")) {
 			name = name.substring(11);
 		}
-		QName qName = parseQName(name);
+		QName qName = parseQName(name, true);
 		
 		instrs.push(XPathExpression.INSTR_ATTRIBUTE);
 		instrs.push(addQName(qName));
@@ -475,7 +476,7 @@ public class CompiledAXSData implements ParserVisitor {
 			}
 			
 			// add the step to the instructions vector
-			QName qName = parseQName(name);
+			QName qName = parseQName(name, false);
 			
 			instrs.push(tagInstr);
 			instrs.push(addQName(qName));
@@ -502,7 +503,7 @@ public class CompiledAXSData implements ParserVisitor {
 		String lastNodeName = (String) expressionNode.jjtGetChild(totalSteps - 1)
 														.jjtGetChild(0)
 														.jjtAccept(this, instrs);
-		return parseQName(lastNodeName).getLocalPart();
+		return parseQName(lastNodeName, false).getLocalPart();
 	}
 	
 	private String compileExpression(Node expressionNode, ShortVector instrVector) {
