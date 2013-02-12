@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
@@ -355,6 +357,17 @@ public class CompiledAXSData implements ParserVisitor {
 			instrs.push(XPathExpression.INSTR_STARTS_WITH);
 		} else if ("ends-with".equals(fnName)) {
 			instrs.push(XPathExpression.INSTR_ENDS_WITH);
+		} else if ("matches".equals(fnName)) {
+			String pattern = mLiterals.get(instrs.get(instrs.size() - 1));
+			
+			// test-compile the expression so that malformed expressions are
+			// a compile-time error, not a runtime error
+			try {
+				Pattern.compile(pattern);
+			} catch (PatternSyntaxException e) {
+				errorMessage("Malformed regular expression: " + e);
+			}
+			instrs.push(XPathExpression.INSTR_MATCHES);
 		} else {
 			errorMessage("Unknown string comparison function \"" + fnName + "\"");
 		}

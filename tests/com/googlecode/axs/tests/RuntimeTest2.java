@@ -54,6 +54,11 @@ public class RuntimeTest2 extends AbstractAnnotatedHandler {
 	void testEmpty(String text) {
 		expect("", text);
 	}
+	
+	@XPath("ns2:key[matches(@value, 'ab*')]")
+	void testRegexp(String text) {
+		expect("Value 10", text);
+	}
 
 	public static void main(String[] args) {
 		SAXParserFactory factory = SAXParserFactory.newInstance();

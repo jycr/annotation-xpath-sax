@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.xml.namespace.QName;
 
@@ -61,6 +64,10 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 	
 	// the string stack for the predicate evaluator
 	private String[] mPredicateStringStack = new String[2];
+	
+	// a cache so that we don't have to recompile patterns for matches()
+	// function calls
+	private HashMap<String, Pattern> mPatternCache = null;
 
 	// the compiled XPath expression data provider for our subclass
 	private AXSData mAXSData = null;
@@ -467,6 +474,34 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				
 				if (TRACE_EXECUTION)
 					System.out.println("  GE: " + evaluationStack[esp-1]);
+				break;
+			}
+			case XPathExpression.INSTR_MATCHES:
+			{
+				final String target = stringStack[0];
+				final String patternString = stringStack[1];
+				if (TRACE_EXECUTION)
+					System.out.print("  MATCHES(\"" + target + "\", \"" + patternString + "\": ");
+				
+				if (mPatternCache == null)
+					mPatternCache = new HashMap<String, Pattern>();
+				
+				Pattern pattern = mPatternCache.get(patternString);
+				if (pattern == null) {
+					try {
+						pattern = Pattern.compile(patternString);
+					} catch (PatternSyntaxException e) {
+						if (TRACE_EXECUTION)
+							instrFail();
+						return false;
+					}
+					mPatternCache.put(patternString, pattern);
+				}
+				
+				evaluationStack[esp++] = (pattern.matcher(target).matches() ? 1 : 0);
+				
+				if (TRACE_EXECUTION)
+					System.out.println(String.valueOf(evaluationStack[esp-1]));
 				break;
 			}
 			default:

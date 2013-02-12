@@ -283,12 +283,17 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
   jjtree.openNodeScope(jjtn000);
 /*@egen*/  Token t;}{/*@bgen(jjtree) StringSearchFunction */
   try {
-/*@egen*/  (    t = < CONTAINS >  | t = < STARTS_WITH >  | t = < ENDS_WITH >//  | t = < MATCHES > // FIXME: adding regexp support will take a bit of effort  )  "(" StringExpression() "," StringExpression() ")"/*@bgen(jjtree)*/
+/*@egen*/  (    t = < CONTAINS >  | t = < STARTS_WITH >  | t = < ENDS_WITH >  )  "(" StringExpression() "," StringExpression() ")"/*@bgen(jjtree)*/
   {
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
   }
-/*@egen*/  {    jjtn000.jjtSetValue(t.image);  }/*@bgen(jjtree)*/
+/*@egen*/  {    jjtn000.jjtSetValue(t.image);  }| ( t = < MATCHES > "(" StringExpression() "," StringValue() ")" )/*@bgen(jjtree)*/
+{
+  jjtree.closeNodeScope(jjtn000, true);
+  jjtc000 = false;
+}
+/*@egen*/{  jjtn000.jjtSetValue(t.image);}/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -308,7 +313,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/{/*@
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/}void StringExpression()       :{}{  StringValue()| AttributeExpression()}void NumericExpression()       :{}{  IntegerValue()| PositionFunction()}void IntegerValue() :{/*@bgen(jjtree) IntegerValue */
+/*@egen*/}void StringExpression()       :{}{  StringValue()| AttributeExpression()}void NumericExpression()       :{}{  IntegerValue()| PositionFunction()}void IntegerValue() :{/*@bgen(jjtree) IntegerValue */
   IntegerValue jjtn000 = new IntegerValue(JJTINTEGERVALUE);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);

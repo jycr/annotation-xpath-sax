@@ -231,7 +231,7 @@ class AXSDataWriter {
 	// they are package-scope, since they're needed in CompiledAXSData as well
 	// how many instruction slots a given instruction occupies
 	static final int[] InstructionLengths = {
-		1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1
+		1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1
 	};
 	
 	// the XPathExpression.* names for each token value
@@ -258,6 +258,7 @@ class AXSDataWriter {
 		"INSTR_NE",
 		"INSTR_LE",
 		"INSTR_GE",
+		"INSTR_MATCHES"
 	};
 	
 	static final int NONE = 0;
@@ -280,6 +281,7 @@ class AXSDataWriter {
 		NONE,
 		NONE,
 		QNAME,
+		NONE,
 		NONE,
 		NONE,
 		NONE,
