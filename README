@@ -127,6 +127,12 @@ Only a few predicates are accepted:
     "a""b" is 'a"b') or attribute names, either attribute::NAME or @NAME
   - string match functions "contains(a, b)", "starts-with(a, b)", and "ends-with(a, b)" where
     A and B are either literals or attribute names
+  - the regular expression string match function "match(A, L)" where A is either a literal or
+    an attribute name, and L is a string literal: this tests whether A matches the regular
+    expression specified in L. Regular expression syntax is that of java.util.regex.Pattern,
+    not that of XPath. The optional third (flags) argument in the XPath standard is not
+    supported. Use the (?idmsux-idmsux) syntax inside the pattern to set pattern flags,
+    instead.
   - numeric comparisons to the position() function (e.g. [position() < 4] selects the first
     three matches)
   - the special function [captureattrs()] which ensures that the attributes of the
