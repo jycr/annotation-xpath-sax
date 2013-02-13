@@ -52,7 +52,7 @@ public class QName {
     }
 
     public String toString() {
-        if (mNamespaceURI.isEmpty()) {
+        if (mNamespaceURI.length() == 0) {
             return mLocalPart;
         }
         
