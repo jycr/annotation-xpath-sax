@@ -136,6 +136,7 @@ class AXSDataWriter {
 		writeImport(w, "javax.annotation.Generated");
 		writeImport(w, "javax.xml.namespace.QName");
 		writeImport(w, "org.xml.sax.Attributes");
+		writeImport(w, "org.xml.sax.SAXException");
 		w.write("\n");
 		writeImport(w, "com.googlecode.axs.AXSData");
 		writeImport(w, "com.googlecode.axs.AbstractAnnotatedHandler");
@@ -161,7 +162,7 @@ class AXSDataWriter {
 			w.write(argType);
 			w.write(" callbackArg");
 		}
-		w.write(") {\n");
+		w.write(") throws SAXException {\n");
 		indent(w, 8); w.write(className + " handler = (" + className + ") abstractHandler;\n\n");
 		indent(w, 8); w.write("switch (exprIx) {\n");
 		
