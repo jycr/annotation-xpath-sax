@@ -69,6 +69,7 @@
             <compilerarg value="${compiler-jar}"/>
             <compilerarg value="-s"/>
             <compilerarg value="${tests-build}/generated"/>
+            <!-- <compilerarg value="-Aaxs.nogenerated"/>  uncomment to test -->
         </javac>
         <javac includeantruntime="false" srcdir="${tests-build}/generated" destdir="${tests-build}" classpath="${tests-build}:${runtime-jar}"/>
     </target>

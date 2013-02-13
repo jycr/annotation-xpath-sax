@@ -10,6 +10,7 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -33,6 +34,7 @@ import javax.tools.FileObject;
 	"com.googlecode.axs.XPathNamespaces"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedOptions("axs.nogenerated")
 public class AnnotationProcessor extends AbstractProcessor {
 	// accumulate all the classes we need to generate _AXSData classes for
 	private HashMap<TypeElement, AnnotatedClass> mClasses = new HashMap<TypeElement, AnnotatedClass>();
@@ -99,6 +101,9 @@ public class AnnotationProcessor extends AbstractProcessor {
 				FileObject axsDataFile = filer.createSourceFile(filename,
 												ac.classElement());
 				BufferedWriter writer = new BufferedWriter(axsDataFile.openWriter());
+				
+				if (processingEnv.getOptions().containsKey("axs.nogenerated"))
+					AXSDataWriter.setUseGeneratedAnnotation(false);
 				
 				AXSDataWriter.writeAXSData(writer, axsData);
 				writer.close();

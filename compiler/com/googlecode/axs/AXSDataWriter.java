@@ -21,6 +21,12 @@ class AXSDataWriter {
 	private AXSDataWriter() {
 	}
 	
+	private static boolean sWriteGeneratedAnnotation = true;
+	
+	public static void setUseGeneratedAnnotation(boolean write) {
+		sWriteGeneratedAnnotation = write;
+	}
+	
 	/**
 	 * Write out the compiled _AXSData as Java source code to the given writer
 	 * @param w the writer to which the code should be written.
@@ -143,8 +149,10 @@ class AXSDataWriter {
 		w.write("\n");
 		writeImport(w, axsData.packageName() + "." + axsData.className());
 		w.write("\n");
-		w.write("\n@Generated(value = { \"com.googlecode.axs.AnnotationProcessor\", \"");
-		w.write(axsData.packageName() + "." + axsData.className() + "\"})\n");
+		if (sWriteGeneratedAnnotation) {
+			w.write("\n@Generated(value = { \"com.googlecode.axs.AnnotationProcessor\", \"");
+			w.write(axsData.packageName() + "." + axsData.className() + "\"})\n");
+		}
 		w.write("public class "); w.write(axsData.className() + "_AXSData"); w.write(" implements AXSData {\n");
 		indent(w, 4); w.write("private static Object Lock = new Object();\n\n");
 	}
