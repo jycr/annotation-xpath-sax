@@ -79,7 +79,7 @@ class AnnotatedClass {
 			}
 			String prefix = p.substring(0, eqPos);
 			String uri = p.substring(eqPos+1);
-			mMessager.printMessage(Kind.NOTE, "Mapping namespace " + prefix + " to " + uri + " for class " + className());
+			mMessager.printMessage(Kind.NOTE, "Mapping namespace \"" + prefix + "\" to \"" + uri + "\" for class " + className());
 			mPrefixMap.put(prefix, uri);
 		}
 	}
