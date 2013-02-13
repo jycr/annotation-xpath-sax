@@ -85,7 +85,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 	private HashMap<QName, String> mCachedAttributesMap = null;
 	private HashMap<QName, Position> mCachedPositionMap = null;
 
-	private static final boolean TRACE_EXECUTION = true;
+	private static final boolean TRACE_EXECUTION = false;
 	
 	public AbstractAnnotatedHandler() {
 		super();
