@@ -30,6 +30,7 @@ public final class XPathExpression {
 	public static final short INSTR_LE = 20;
 	public static final short INSTR_GE = 21;
 	public static final short INSTR_MATCHES = 22;
+	public static final short INSTR_SOFT_TEST_PREDICATE = 23; // the following value is a signed offset relative to this instruction
 
 	private short[] mInstructions = null;
 	private QName[] mQNames = null;

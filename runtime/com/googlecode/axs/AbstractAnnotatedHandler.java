@@ -85,7 +85,7 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 	private HashMap<QName, String> mCachedAttributesMap = null;
 	private HashMap<QName, Position> mCachedPositionMap = null;
 
-	private static final boolean TRACE_EXECUTION = false;
+	private static final boolean TRACE_EXECUTION = true;
 	
 	public AbstractAnnotatedHandler() {
 		super();
@@ -502,6 +502,31 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 					System.out.println(String.valueOf(evaluationStack[esp-1]));
 				break;
 			}
+			case XPathExpression.INSTR_SOFT_TEST_PREDICATE:
+				// test whether the predicate matched
+				if (TRACE_EXECUTION)
+					System.out.print("  SOFT_TEST_PREDICATE: ");
+
+				if (esp != 1 || evaluationStack[0] == 0) {
+					// the predicate failed: pop the tag stack and branch
+					if (--tagp < 0) {
+						if (TRACE_EXECUTION)
+							instrFail();
+						return false;
+					}
+					
+					if (TRACE_EXECUTION)
+						System.out.println("branch");
+					esp = 0;
+					ip += instructions[ip+1];
+					continue; // execute the branch immediately
+				}
+
+				esp = 0;
+				ip++;
+				if (TRACE_EXECUTION)
+					instrOk();
+				break;
 			default:
 				throw new XPathExecutionError("unexpected instruction value " + instr);
 			}

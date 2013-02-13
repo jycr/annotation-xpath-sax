@@ -210,12 +210,8 @@ public class CompiledAXSData implements ParserVisitor {
 	 */
 	@Override
 	public Object visit(StepExpression node, ShortVector instrs) {
-		int captures = CAPTURE_NONE;
-		
-		for (int i = 1, children = node.jjtGetNumChildren(); i < children; i++) {
-			captures |= (Integer) node.jjtGetChild(i).jjtAccept(this, instrs);
-		}
-		return captures;
+		errorMessage("Got an unhandled #" + node.getClass().getSimpleName() + " node in the parse tree!");
+		return null;
 	}
 	
 	@Override
@@ -457,9 +453,9 @@ public class CompiledAXSData implements ParserVisitor {
 		// to know that "c" was a decendent:: step when we compile "b"
 		boolean lastWasDecendent = false;
 		
-		for (int child = totalSteps - 1; child >= 0; child -= 2) {
+		for (int step = totalSteps - 1; step >= 0; step -= 2) {
 			// determine the tag name for this step
-			Node axisStepNode = expressionNode.jjtGetChild(child);
+			Node axisStepNode = expressionNode.jjtGetChild(step);
 			String name = (String) axisStepNode.jjtGetChild(0).jjtAccept(this, instrs);
 			boolean isDecendent = lastWasDecendent;
 
@@ -478,20 +474,39 @@ public class CompiledAXSData implements ParserVisitor {
 			
 			// add an instruction scroll up the stack to this node, if the following
 			// step was a '//'
-			if (child != totalSteps - 1) {
+			if (step != totalSteps - 1) {
 				// we're not on the "b" of ...a/b
-				Node separatorNode = expressionNode.jjtGetChild(child + 1);
+				Node separatorNode = expressionNode.jjtGetChild(step + 1);
 				
-				if (separatorNode instanceof SlashSlash || isDecendent) {
-					// this tag is the "b" in "a/b//c" or "a/b/decendent::c":
-					// look up the stack until we find it
-					instrs.push(XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT);
-					instrs.push(addQName(qName));
+				if (separatorNode instanceof SlashSlash) {
+					isDecendent = true;
 				}
 			}
 
+			int nonconsecutiveElementLabel = instrs.size();
+			if (isDecendent) {
+				// this tag is the "b" in "a/b//c" or "a/b/decendent::c":
+				// look up the stack until we find it
+				instrs.push(XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT);
+				instrs.push(addQName(qName));
+			}
+			
 			// now that we're at the correct tag, compile any Predicates for this step
-			int captureFlags = (Integer) axisStepNode.jjtAccept(this, instrs);
+			int captureFlags = CAPTURE_NONE;
+			for (int i = 1, children = axisStepNode.jjtGetNumChildren(); i < children; i++) {
+				captureFlags |= (Integer) axisStepNode.jjtGetChild(i).jjtAccept(this, instrs);
+				
+				if (isDecendent) {
+					// each Predicate ends with an INSTR_TEST_PREDICATE, patch it into an
+					// INSTR_SOFT_TEST_PREDICATE so that if the predicate fails the VM will 
+					// branch back to retry the INSTR_NONCONSECUTIVE_ELEMENT up the tag stack
+					if (instrs.top() != XPathExpression.INSTR_TEST_PREDICATE)
+						errorMessage("Internal error: found a predicate that ended with instruction " + instrs.top());
+					int softTestLabel = instrs.size() - 1;
+					instrs.put(instrs.size() - 1, XPathExpression.INSTR_SOFT_TEST_PREDICATE);
+					instrs.push((short)(nonconsecutiveElementLabel - softTestLabel));
+				}
+			}
 
 			// then compile the step itself
 			instrs.push(XPathExpression.INSTR_ELEMENT);
@@ -502,7 +517,7 @@ public class CompiledAXSData implements ParserVisitor {
 			}
 			
 			if ((captureFlags & CAPTURE_POSITIONS) != 0) {
-				if (child < 2) {
+				if (step < 2) {
 					// this is the topmost node in the pattern: we can't capture positions for it
 					errorMessage("Cannot use position() predicates for the topmost node in a path");
 				}

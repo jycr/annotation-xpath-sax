@@ -30,6 +30,12 @@ public class ShortVector {
 		return length;
 	}
 	
+	public short top() {
+		if (length == 0)
+			throw new ArrayIndexOutOfBoundsException(0);
+		return buffer[length - 1];
+	}
+	
 	public short get(int index) {
 		if (index >= length)
 			throw new ArrayIndexOutOfBoundsException(index);

@@ -65,7 +65,7 @@ public class RuntimeTest2 extends AbstractAnnotatedHandler {
 		factory.setNamespaceAware(true);
 		
 		if (! (new File(args[0] + "/testData2.xml")).exists()) {
-			System.out.println("Usage: RuntimeTest1 path/to/testData");
+			System.out.println("Usage: RuntimeTest2 path/to/testData");
 			System.exit(1);
 		}
 		
@@ -79,7 +79,7 @@ public class RuntimeTest2 extends AbstractAnnotatedHandler {
 		} catch (SAXException e) {
 			System.out.println("[FAIL] Got a SAXException: "+ e);
 		} catch (IOException e) {
-			System.out.println("Usage: RuntimeTest1 path/to/testData");
+			System.out.println("Usage: RuntimeTest2 path/to/testData");
 		} catch (ParserConfigurationException e) {
 			System.out.println("[FAIL] Got a ParserConfigurationException: " + e);
 		}

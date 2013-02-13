@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<obj>
+    <entry key="keya">
+        <obj>
+            <value type="type2">Text1</value>
+        </obj>
+    </entry>
+    <entry key="keyb">
+        <obj>
+            <entry key="keyc">
+                <obj>
+                    <value type="type1">
+                        <obj>
+                            <value type="type2">Retrial1</value>
+                        </obj>
+                    </value>
+                </obj>
+            </entry>
+        </obj>
+    </entry>
+</obj>
