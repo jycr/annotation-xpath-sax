@@ -1,7 +1,5 @@
 package com.googlecode.axs;
 
-import javax.xml.namespace.QName;
-
 /**
  * An XPathExpression is a precompiled form of an XPath expression. Its format
  * is subject to change in future versions of this library.

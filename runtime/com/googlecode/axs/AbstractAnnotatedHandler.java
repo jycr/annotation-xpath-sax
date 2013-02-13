@@ -7,8 +7,6 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.xml.namespace.QName;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;

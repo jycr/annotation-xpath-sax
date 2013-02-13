@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.xml.namespace.QName;
-
 /**
  * This class provides the static method which supports the writing of
  * _AXSData classes.
@@ -134,13 +132,13 @@ class AXSDataWriter {
 		writeImport(w, "java.util.Map");
 		writeImport(w, "java.util.Set");
 		writeImport(w, "javax.annotation.Generated");
-		writeImport(w, "javax.xml.namespace.QName");
 		writeImport(w, "org.xml.sax.Attributes");
 		writeImport(w, "org.xml.sax.SAXException");
 		w.write("\n");
 		writeImport(w, "com.googlecode.axs.AXSData");
 		writeImport(w, "com.googlecode.axs.AbstractAnnotatedHandler");
 		writeImport(w, "com.googlecode.axs.HandlerCallError");
+		writeImport(w, "com.googlecode.axs.QName");
 		writeImport(w, "com.googlecode.axs.XPathExpression");
 		w.write("\n");
 		writeImport(w, axsData.packageName() + "." + axsData.className());

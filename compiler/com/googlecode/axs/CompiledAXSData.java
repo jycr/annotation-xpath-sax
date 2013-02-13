@@ -13,7 +13,6 @@ import java.util.regex.PatternSyntaxException;
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic.Kind;
-import javax.xml.namespace.QName;
 
 import com.googlecode.axs.xpath.AndExpression;
 import com.googlecode.axs.xpath.AttributeExpression;
@@ -132,7 +131,7 @@ public class CompiledAXSData implements ParserVisitor {
 			if (uri == null) {
 				errorMessage("No Namespace URI mapping specified for prefix \"" + prefix + "\"");
 			}
-			return new QName(uri, localName, prefix);
+			return new QName(uri, localName);
 		}
 		
 		return new QName(isAttribute ? null : mClass.prefixMap().get(""), name);

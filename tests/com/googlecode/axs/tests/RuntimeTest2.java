@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -12,6 +11,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 
 import com.googlecode.axs.AbstractAnnotatedHandler;
+import com.googlecode.axs.QName;
 import com.googlecode.axs.XPath;
 import com.googlecode.axs.XPathNamespaces;
 
