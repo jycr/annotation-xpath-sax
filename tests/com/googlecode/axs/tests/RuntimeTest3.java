@@ -24,7 +24,7 @@ public class RuntimeTest3 extends AbstractAnnotatedHandler {
 		}
 	}
 	
-	@XPath("entry[@key = 'keyb']//value[@type='type2']")
+	@XPath("entry[@mod = 'moda'][@key = 'keyb']//value[@type='type2']")
 	public void testPredicateRetrial(String text) {
 		expect("Retrial1", text);
 	}

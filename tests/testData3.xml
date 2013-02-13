@@ -5,9 +5,9 @@
             <value type="type2">Text1</value>
         </obj>
     </entry>
-    <entry key="keyb">
+    <entry key="keyb" mod="moda">
         <obj>
-            <entry key="keyc">
+            <entry key="keyc" mod="moda">
                 <obj>
                     <value type="type1">
                         <obj>
