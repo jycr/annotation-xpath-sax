@@ -24,6 +24,7 @@ import com.googlecode.axs.xpath.Node;
 import com.googlecode.axs.xpath.NotExpression;
 import com.googlecode.axs.xpath.NumericComparisonExpression;
 import com.googlecode.axs.xpath.OrExpression;
+import com.googlecode.axs.xpath.ParseException;
 import com.googlecode.axs.xpath.Parser;
 import com.googlecode.axs.xpath.ParserVisitor;
 import com.googlecode.axs.xpath.PositionFunction;
@@ -572,8 +573,10 @@ public class CompiledAXSData implements ParserVisitor {
 				mMethods.add(new Method(methodName, xpathExpression, mInstructions.size() - 1));
 				addTrigger(trigger, mInstructions.size() - 1);
 			}
+		} catch (ParseException e) {
+			errorMessage("Syntax error in XPath expression:\n" + e.getMessage());
 		} catch (Exception e) {
-			mMessager.printMessage(Kind.ERROR, "Error parsing XPath expression \"" + xpathExpression + "\": " + e.toString());
+			errorMessage("Internal error parsing XPath expression \"" + xpathExpression + "\": " + e.toString());
 			e.printStackTrace();
 		}
 	}
