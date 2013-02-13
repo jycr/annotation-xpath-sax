@@ -361,7 +361,8 @@ public class AbstractAnnotatedHandler extends DefaultHandler {
 				break;
 			}
 			case XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT:
-				// consume any number of tags until the QName before the double slash is found
+				// consumes any number of tags until the QName before the double slash is found
+				// but does not consume the tag
 			{
 				final QName targetTag = qNames[instructions[++ip]];
 				

@@ -25,7 +25,6 @@ import com.googlecode.axs.xpath.NotExpression;
 import com.googlecode.axs.xpath.NumericComparisonExpression;
 import com.googlecode.axs.xpath.OrExpression;
 import com.googlecode.axs.xpath.Parser;
-import com.googlecode.axs.xpath.ParserTreeConstants;
 import com.googlecode.axs.xpath.ParserVisitor;
 import com.googlecode.axs.xpath.PositionFunction;
 import com.googlecode.axs.xpath.Predicate;
@@ -453,44 +452,49 @@ public class CompiledAXSData implements ParserVisitor {
 			return "";
 		}
 		
+		// we need to keep track of whether the step _after_ the current step
+		// was a decendent:: step, e.g. when compiling "a/b/decendent::c", we need
+		// to know that "c" was a decendent:: step when we compile "b"
+		boolean lastWasDecendent = false;
+		
 		for (int child = totalSteps - 1; child >= 0; child -= 2) {
-			// compile any Predicates for this step
+			// determine the tag name for this step
 			Node axisStepNode = expressionNode.jjtGetChild(child);
-			int captureFlags = (Integer) axisStepNode.jjtAccept(this, instrs);
-
-			// then compile the step itself
-			// the last step is always INSTR_ELEMENT
-			short tagInstr = XPathExpression.INSTR_ELEMENT;
-			
-			if (child != totalSteps - 1) {
-				// we're not on the "b" of ...a/b
-				Node separatorNode = expressionNode.jjtGetChild(child + 1);
-				
-				if (separatorNode instanceof SlashSlash) {
-					// this tag is the "b" in a/b//c...
-					tagInstr = XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT;
-				}
-			}
-			
-			// remove axis prefixes from the Name for the step
 			String name = (String) axisStepNode.jjtGetChild(0).jjtAccept(this, instrs);
+			boolean isDecendent = lastWasDecendent;
+
+			lastWasDecendent = false;
 			if (name.startsWith("child::")) {
 				name = name.substring(7);
 			} else if (name.startsWith("decendent::")) {
 				name = name.substring(11);
-				
-				// replace the separator _before_ this step with a SlashSlash
-				if (child > 0) {
-					expressionNode.jjtAddChild(new SlashSlash(ParserTreeConstants.JJTSLASHSLASH), child - 1);
-				}
+				lastWasDecendent = true;
 			} else if (name.startsWith("attribute::") || name.startsWith("@")) {
 				errorMessage("Cannot use an attribute name as an Axis Step");
 			}
 			
-			// add the step to the instructions vector
+			// this is the real name for this step
 			QName qName = parseQName(name, false);
 			
-			instrs.push(tagInstr);
+			// add an instruction scroll up the stack to this node, if the following
+			// step was a '//'
+			if (child != totalSteps - 1) {
+				// we're not on the "b" of ...a/b
+				Node separatorNode = expressionNode.jjtGetChild(child + 1);
+				
+				if (separatorNode instanceof SlashSlash || isDecendent) {
+					// this tag is the "b" in "a/b//c" or "a/b/decendent::c":
+					// look up the stack until we find it
+					instrs.push(XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT);
+					instrs.push(addQName(qName));
+				}
+			}
+
+			// now that we're at the correct tag, compile any Predicates for this step
+			int captureFlags = (Integer) axisStepNode.jjtAccept(this, instrs);
+
+			// then compile the step itself
+			instrs.push(XPathExpression.INSTR_ELEMENT);
 			instrs.push(addQName(qName));
 			
 			if ((captureFlags & CAPTURE_ATTRIBUTES) != 0) {
