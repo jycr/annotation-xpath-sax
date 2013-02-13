@@ -137,7 +137,9 @@ class AXSDataWriter {
 		writeImport(w, "java.util.HashSet");
 		writeImport(w, "java.util.Map");
 		writeImport(w, "java.util.Set");
-		writeImport(w, "javax.annotation.Generated");
+		if (sWriteGeneratedAnnotation) {
+			writeImport(w, "javax.annotation.Generated");
+		}
 		writeImport(w, "org.xml.sax.Attributes");
 		writeImport(w, "org.xml.sax.SAXException");
 		w.write("\n");
