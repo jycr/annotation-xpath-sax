@@ -275,7 +275,7 @@ public class CompiledAXSData implements ParserVisitor {
 	@Override
 	public Object visit(NotExpression node, ShortVector instrs) {
 		if (node.jjtGetNumChildren() != 1)
-			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " decendents of a not() expression");
+			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " descendants of a not() expression");
 		int captures = (Integer) node.jjtGetChild(0).jjtAccept(this, instrs);
 		instrs.push(XPathExpression.INSTR_NOT);
 		return captures;
@@ -284,7 +284,7 @@ public class CompiledAXSData implements ParserVisitor {
 	@Override
 	public Object visit(NumericComparisonExpression node, ShortVector instrs) {
 		if (node.jjtGetNumChildren() != 2)
-			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " decendents of a numeric comparison expression");
+			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " descendants of a numeric comparison expression");
 		int captures = CAPTURE_NONE;
 		
 		for (int i = 0; i < 2; i++) {
@@ -313,7 +313,7 @@ public class CompiledAXSData implements ParserVisitor {
 	@Override
 	public Object visit(StringComparisonExpression node, ShortVector instrs) {
 		if (node.jjtGetNumChildren() != 2)
-			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " decendents of a string comparison expression");
+			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " descendants of a string comparison expression");
 		int captures = CAPTURE_NONE;
 		
 		for (int i = 0; i < 2; i++) {
@@ -336,7 +336,7 @@ public class CompiledAXSData implements ParserVisitor {
 	@Override
 	public Object visit(StringSearchFunction node, ShortVector instrs) {
 		if (node.jjtGetNumChildren() != 2)
-			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " decendents of a string comparison function expression");
+			errorMessage("Unexpectedly found " + node.jjtGetNumChildren() + " descendants of a string search function expression");
 		int captures = CAPTURE_NONE;
 		
 		for (int i = 0; i < 2; i++) {
@@ -399,7 +399,7 @@ public class CompiledAXSData implements ParserVisitor {
 	public Object visit(AttributeExpression node, ShortVector instrs) {
 		String name = (String) node.jjtGetChild(0).jjtAccept(this, instrs);
 		
-		if (name.startsWith("child::") || name.startsWith("decendent::")) {
+		if (name.startsWith("child::") || name.startsWith("descendant::")) {
 			errorMessage("Cannot use Element as a value in a predicate");
 		} else if (name.startsWith("attribute::")) {
 			name = name.substring(11);
@@ -450,22 +450,22 @@ public class CompiledAXSData implements ParserVisitor {
 		}
 		
 		// we need to keep track of whether the step _after_ the current step
-		// was a decendent:: step, e.g. when compiling "a/b/decendent::c", we need
-		// to know that "c" was a decendent:: step when we compile "b"
-		boolean lastWasDecendent = false;
+		// was a descendant:: step, e.g. when compiling "a/b/descendant::c", we need
+		// to know that "c" was a descendant:: step when we compile "b"
+		boolean lastWasDescendant = false;
 		
 		for (int step = totalSteps - 1; step >= 0; step -= 2) {
 			// determine the tag name for this step
 			Node axisStepNode = expressionNode.jjtGetChild(step);
 			String name = (String) axisStepNode.jjtGetChild(0).jjtAccept(this, instrs);
-			boolean isDecendent = lastWasDecendent;
+			boolean isDescendant = lastWasDescendant;
 
-			lastWasDecendent = false;
+			lastWasDescendant = false;
 			if (name.startsWith("child::")) {
 				name = name.substring(7);
-			} else if (name.startsWith("decendent::")) {
+			} else if (name.startsWith("descendant::")) {
 				name = name.substring(11);
-				lastWasDecendent = true;
+				lastWasDescendant = true;
 			} else if (name.startsWith("attribute::") || name.startsWith("@")) {
 				errorMessage("Cannot use an attribute name as an Axis Step");
 			}
@@ -480,13 +480,13 @@ public class CompiledAXSData implements ParserVisitor {
 				Node separatorNode = expressionNode.jjtGetChild(step + 1);
 				
 				if (separatorNode instanceof SlashSlash) {
-					isDecendent = true;
+					isDescendant = true;
 				}
 			}
 
 			int nonconsecutiveElementLabel = instrs.size();
-			if (isDecendent) {
-				// this tag is the "b" in "a/b//c" or "a/b/decendent::c":
+			if (isDescendant) {
+				// this tag is the "b" in "a/b//c" or "a/b/descendant::c":
 				// look up the stack until we find it
 				instrs.push(XPathExpression.INSTR_NONCONSECUTIVE_ELEMENT);
 				instrs.push(addQName(qName));
@@ -497,7 +497,7 @@ public class CompiledAXSData implements ParserVisitor {
 			for (int i = 1, children = axisStepNode.jjtGetNumChildren(); i < children; i++) {
 				captureFlags |= (Integer) axisStepNode.jjtGetChild(i).jjtAccept(this, instrs);
 				
-				if (isDecendent) {
+				if (isDescendant) {
 					// each Predicate ends with an INSTR_TEST_PREDICATE, patch it into an
 					// INSTR_SOFT_TEST_PREDICATE so that if the predicate fails the VM will 
 					// branch back to retry the INSTR_NONCONSECUTIVE_ELEMENT up the tag stack
