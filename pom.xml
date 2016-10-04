@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.googlecode.axs</groupId>
+	<artifactId>annotation-xpath-sax</artifactId>
+	<version>0.7</version>
+	<packaging>pom</packaging>
+	<name>AXS - Annotation XPath for SAX</name>
+	<description>AXS (pronounced "axis") is an effort to make writing SAX DocumentHandlers easy. An AXS
+handler subclasses com.googlecode.axs.AbstractAnnotatedHandler and then instead of
+(or in addition to) the usual startElement(), endElement(), etc. SAX handlers, it
+defines annotated handlers which are called when the current element in the document
+being parsed matches an XPath expression</description>
+	<prerequisites>
+		<maven>3.3</maven>
+	</prerequisites>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.encoding>${project.build.sourceEncoding}</maven.compiler.encoding>
+		<maven.compiler.source>${maven.compiler.target}</maven.compiler.source>
+	</properties>
+	<modules>
+		<module>axs-compiler</module>
+		<module>axs-runtime</module>
+	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>

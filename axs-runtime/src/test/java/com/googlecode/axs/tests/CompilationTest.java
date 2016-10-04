@@ -24,6 +24,9 @@
 
 package com.googlecode.axs.tests;
 
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.BeforeClass;
 import org.xml.sax.Attributes;
 
 import com.googlecode.axs.AbstractAnnotatedHandler;
@@ -72,9 +75,10 @@ public class CompilationTest extends AbstractAnnotatedHandler {
 		
 	}
 	
+	@BeforeClass
 	public static void main(String[] args) {
 		CompilationTest t = new CompilationTest();
-		
+		assertNotNull("Instantiated a CompilationTest object", t);
 		System.out.println("[OK] Instantiated a CompilationTest object\n");
 	}
 }

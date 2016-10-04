@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
   This file is part of AXS, Annotation-XPath for SAX.
 
@@ -22,7 +23,6 @@
   SOFTWARE.
  -->
 
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="build" name="AnnotatedXPathSAX">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
@@ -32,15 +32,16 @@
     <property name="LIBVERSION" value="0.7"/>
 
    	<tstamp/>
- 	<property name="build" location="build"/>
-  	<property name="dist"  location="dist"/>
+ 	<property name="build" location="target"/>
+  	<property name="dist"  location="${build}/dist"/>
   	
   	<!-- The root directory of your JavaCC install. Only required if you're hacking on the XPath parser -->
-  	<property name="javacc-home" location="C:/NonInstallerPrograms/javacc-5.0"/>
+  	<property name="javacc-home" location="${env.JAVACC_HOME}"/>
 
-    <property name="runtime-src" location="runtime"/>
-    <property name="compiler-src" location="compiler"/>
-    <property name="tests-src" location="tests"/>
+    <property name="runtime-src" location="axs-runtime/src/main/java"/>
+    <property name="compiler-src" location="axs-compiler/src/main/java"/>
+    <property name="compiler-resources" location="axs-compiler/src/main/resources"/>
+    <property name="tests-src" location="axs-runtime/src/test/java"/>
 	<property name="runtime-build" location="${build}/runtime"/>
  	<property name="compiler-build" location="${build}/compiler"/>
  	<property name="tests-build" location="${build}/tests"/>
@@ -101,10 +102,11 @@
     <target name="build" depends="build-runtime-jar,build-compiler-jar,build-tests"/>
     
     <target name="rebuild-grammar" depends="init">
-        <jjtree target="${compiler-src}/com/googlecode/axs/xpath/Parser.jjt" 
-            javacchome="${javacc-home}" static="false" outputdirectory="${compiler-src}/com/googlecode/axs/xpath"/>
-        <javacc target="${compiler-src}/com/googlecode/axs/xpath/Parser.jj"
-            javacchome="${javacc-home}" static="false" outputdirectory="${compiler-src}/com/googlecode/axs/xpath"/>
+        <mkdir dir="${compiler-build}/com/googlecode/axs/xpath"/>
+        <jjtree target="${compiler-resources}/com/googlecode/axs/xpath/Parser.jjt" 
+            javacchome="${javacc-home}" static="false" outputdirectory="${compiler-build}/com/googlecode/axs/xpath"/>
+        <javacc target="${compiler-resources}/com/googlecode/axs/xpath/Parser.jj"
+            javacchome="${javacc-home}" static="false" outputdirectory="${compiler-build}/com/googlecode/axs/xpath"/>
     </target>
         
     <target name="clean" description="clean up">
